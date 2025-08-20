@@ -1,0 +1,5 @@
+node_modules/
+.pid
+flux-game.log
+.DS_Store
+*.log

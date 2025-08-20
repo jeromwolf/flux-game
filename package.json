@@ -1,0 +1,22 @@
+{
+  "name": "flux-game",
+  "version": "1.0.0",
+  "description": "지하철에서 할 수 있는 간단한 게임 꾸러미",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "console": "node src/main.js"
+  },
+  "keywords": [
+    "game",
+    "puzzle",
+    "arcade"
+  ],
+  "author": "Kelly",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

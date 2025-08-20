@@ -1,0 +1,644 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: white;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+header p {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+.screen {
+    display: none;
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.screen.active {
+    display: block;
+}
+
+/* 게임 메뉴 */
+.game-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.game-btn {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border: none;
+    border-radius: 10px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.game-btn:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.game-icon {
+    font-size: 3em;
+    width: 80px;
+    text-align: center;
+}
+
+.game-btn h3 {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.game-btn p {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* 게임 헤더 */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.game-header h2 {
+    color: #495057;
+    font-size: 2em;
+}
+
+.game-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 버튼 스타일 */
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+/* 틱택토 */
+.tictactoe-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 300px;
+    margin: 0 auto 30px;
+}
+
+.cell {
+    width: 90px;
+    height: 90px;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cell:hover {
+    background: #e9ecef;
+    transform: scale(1.05);
+}
+
+.cell.x {
+    color: #dc3545;
+}
+
+.cell.o {
+    color: #007bff;
+}
+
+.game-result {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.game-result h3 {
+    margin-bottom: 15px;
+    color: #495057;
+    font-size: 1.5em;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 스네이크 */
+.snake-controls {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.control-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 200px;
+    margin: 20px auto 0;
+}
+
+.control-buttons button {
+    padding: 15px;
+    font-size: 1.5em;
+    border: 2px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.control-buttons button:hover {
+    background: #e9ecef;
+    transform: scale(1.1);
+}
+
+#up {
+    grid-column: 2;
+}
+
+#left {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+#down {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+#right {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+#snake-canvas {
+    display: block;
+    margin: 20px auto;
+    border: 3px solid #495057;
+    border-radius: 10px;
+    background: #343a40;
+}
+
+.snake-instructions {
+    text-align: center;
+    color: #6c757d;
+    margin-top: 20px;
+}
+
+/* 테트리스 */
+.tetris-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 20px 0;
+}
+
+.tetris-side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.next-piece {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.next-piece h4 {
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+#tetris-canvas, #next-canvas {
+    border: 3px solid #495057;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.tetris-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.tetris-controls button {
+    padding: 12px 20px;
+    font-size: 1em;
+    border: 2px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tetris-controls button:hover {
+    background: #e9ecef;
+    transform: scale(1.05);
+}
+
+.tetris-move-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.tetris-instructions {
+    text-align: center;
+    color: #6c757d;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+/* 2048 게임 */
+.game2048-wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.game2048-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.scores {
+    display: flex;
+    gap: 15px;
+}
+
+.score-box {
+    background: #bbada0;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+}
+
+.score-label {
+    font-size: 0.8em;
+    opacity: 0.9;
+}
+
+.score-value {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.game2048-board {
+    background: #bbada0;
+    border-radius: 10px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 0 auto;
+    width: fit-content;
+}
+
+.tile {
+    width: 70px;
+    height: 70px;
+    background: #cdc1b4;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: #776e65;
+    transition: all 0.15s ease;
+}
+
+.tile-2 { background: #eee4da; color: #776e65; }
+.tile-4 { background: #ede0c8; color: #776e65; }
+.tile-8 { background: #f2b179; color: #f9f6f2; }
+.tile-16 { background: #f59563; color: #f9f6f2; }
+.tile-32 { background: #f67c5f; color: #f9f6f2; }
+.tile-64 { background: #f65e3b; color: #f9f6f2; }
+.tile-128 { background: #edcf72; color: #f9f6f2; font-size: 1.5em; }
+.tile-256 { background: #edcc61; color: #f9f6f2; font-size: 1.5em; }
+.tile-512 { background: #edc850; color: #f9f6f2; font-size: 1.5em; }
+.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 1.3em; }
+.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 1.3em; }
+
+.game-message {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.game-message.win { background: #4caf50; color: white; }
+.game-message.lose { background: #f44336; color: white; }
+
+/* 지뢰찾기 게임 */
+.minesweeper-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.minesweeper-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.mines-counter, .timer {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.difficulty-selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.diff-btn {
+    padding: 8px 20px;
+    border: 2px solid #dee2e6;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.diff-btn:hover {
+    background: #e9ecef;
+}
+
+.diff-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.minesweeper-board {
+    display: inline-grid;
+    gap: 1px;
+    background: #ccc;
+    border: 3px solid #999;
+    padding: 1px;
+}
+
+.cell {
+    width: 25px;
+    height: 25px;
+    background: #ddd;
+    border: 2px solid #999;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    font-weight: bold;
+    user-select: none;
+}
+
+.cell:hover:not(.revealed) {
+    background: #ccc;
+}
+
+.cell.revealed {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    cursor: default;
+}
+
+.cell.mine {
+    background: #ff6b6b;
+}
+
+.cell.flagged {
+    background: #e9ecef;
+}
+
+.cell.number-1 { color: #0066cc; }
+.cell.number-2 { color: #009900; }
+.cell.number-3 { color: #ff0000; }
+.cell.number-4 { color: #000066; }
+.cell.number-5 { color: #660000; }
+.cell.number-6 { color: #009999; }
+.cell.number-7 { color: #000000; }
+.cell.number-8 { color: #666666; }
+
+/* 브레이크아웃 게임 */
+.breakout-wrapper {
+    text-align: center;
+}
+
+.breakout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.game-stats {
+    display: flex;
+    gap: 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+#breakout-canvas {
+    border: 3px solid #34495e;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto;
+    background: #2c3e50;
+}
+
+.breakout-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.control-btn {
+    padding: 15px 30px;
+    font-size: 1.1em;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s;
+}
+
+.control-btn:hover {
+    background: #2980b9;
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.game2048-instructions, .mines-instructions, .breakout-instructions {
+    text-align: center;
+    color: #6c757d;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .game-btn {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .cell {
+        width: 70px;
+        height: 70px;
+        font-size: 1.5em;
+    }
+    
+    #snake-canvas {
+        width: 100%;
+        max-width: 350px;
+        height: auto;
+    }
+    
+    .tetris-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .tetris-controls {
+        order: 3;
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    #tetris-canvas {
+        order: 2;
+        width: 180px;
+        height: 360px;
+    }
+    
+    .tile {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5em;
+    }
+    
+    .cell {
+        width: 20px;
+        height: 20px;
+        font-size: 0.8em;
+    }
+    
+    #breakout-canvas {
+        width: 100%;
+        max-width: 480px;
+        height: auto;
+    }
+    
+    .control-btn {
+        padding: 12px 20px;
+        font-size: 1em;
+    }
+}
