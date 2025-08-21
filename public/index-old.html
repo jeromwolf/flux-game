@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Flux Game - 지하철 게임 꾸러미</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/common/components.css">
+    <link rel="stylesheet" href="css/common/ads.css">
+    <link rel="stylesheet" href="css/fluxjump.css">
+    <link rel="stylesheet" href="css/games/casual/cookieclicker.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚇 지하철 게임 꾸러미</h1>
+            <p>Kelly의 간단한 게임 모음</p>
+        </header>
+
+        <main>
+            <!-- 게임 메뉴 화면 -->
+            <div id="menu" class="screen active">
+                <div class="game-list">
+                    <a href="games/tictactoe.html" class="game-btn">
+                        <span class="game-icon">⭕</span>
+                        <div>
+                            <h3>틱택토</h3>
+                            <p>3x3 격자에서 한 줄 만들기</p>
+                        </div>
+                    </a>
+                    
+                    <a href="games/snake.html" class="game-btn">
+                        <span class="game-icon">🐍</span>
+                        <div>
+                            <h3>스네이크</h3>
+                            <p>뱀을 조종해서 먹이 먹기</p>
+                        </div>
+                    </a>
+                    
+                    <a href="games/tetris.html" class="game-btn">
+                        <span class="game-icon">🧱</span>
+                        <div>
+                            <h3>테트리스</h3>
+                            <p>블록을 쌓아 줄 없애기</p>
+                        </div>
+                    </a>
+                    
+                    <a href="games/2048.html" class="game-btn">
+                        <span class="game-icon">🔢</span>
+                        <div>
+                            <h3>2048</h3>
+                            <p>숫자 타일 합치기</p>
+                        </div>
+                    </a>
+                    
+                    <a href="games/minesweeper.html" class="game-btn">
+                        <span class="game-icon">💣</span>
+                        <div>
+                            <h3>지뢰찾기</h3>
+                            <p>숨겨진 지뢰 피하기</p>
+                        </div>
+                    </a>
+                    
+                    <a href="games/breakout.html" class="game-btn">
+                        <span class="game-icon">🎾</span>
+                        <div>
+                            <h3>브레이크아웃</h3>
+                            <p>공으로 벽돌 깨기</p>
+                        </div>
+                    </a>
+                    
+                    <a href="games/fluxjump.html" class="game-btn">
+                        <span class="game-icon">🦘</span>
+                        <div>
+                            <h3>플럭스 점프</h3>
+                            <p>장애물을 피해 점프!</p>
+                        </div>
+                    </a>
+                    
+                    <a href="games/cookieclicker.html" class="game-btn">
+                        <span class="game-icon">🍪</span>
+                        <div>
+                            <h3>쿠키 클리커</h3>
+                            <p>쿠키를 클릭해서 부자되기!</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 틱택토 게임 화면 -->
+            <div id="tictactoe" class="screen game-screen">
+                <div class="game-header">
+                    <h2>틱택토</h2>
+                    <div class="game-info">
+                        <span id="current-player">현재 플레이어: X</span>
+                        <button id="back-to-menu" class="btn-secondary">메뉴로</button>
+                    </div>
+                </div>
+                
+                <div class="tictactoe-board">
+                    <div class="cell" data-index="0"></div>
+                    <div class="cell" data-index="1"></div>
+                    <div class="cell" data-index="2"></div>
+                    <div class="cell" data-index="3"></div>
+                    <div class="cell" data-index="4"></div>
+                    <div class="cell" data-index="5"></div>
+                    <div class="cell" data-index="6"></div>
+                    <div class="cell" data-index="7"></div>
+                    <div class="cell" data-index="8"></div>
+                </div>
+                
+                <div id="game-result" class="game-result hidden">
+                    <h3 id="result-text"></h3>
+                    <button id="restart-game" class="btn-primary">다시 하기</button>
+                </div>
+            </div>
+
+            <!-- 스네이크 게임 화면 -->
+            <div id="snake" class="screen game-screen">
+                <div class="game-header">
+                    <h2>스네이크</h2>
+                    <div class="game-info">
+                        <span id="score">점수: 0</span>
+                        <button id="snake-back-to-menu" class="btn-secondary">메뉴로</button>
+                    </div>
+                </div>
+                
+                <div class="snake-controls">
+                    <button id="snake-start" class="btn-primary">게임 시작</button>
+                    <div class="control-buttons">
+                        <button id="up">↑</button>
+                        <button id="left">←</button>
+                        <button id="down">↓</button>
+                        <button id="right">→</button>
+                    </div>
+                </div>
+                
+                <canvas id="snake-canvas" width="400" height="300"></canvas>
+                
+                <div class="snake-instructions">
+                    <p>화살표 키 또는 버튼으로 뱀을 조종하세요!</p>
+                </div>
+            </div>
+
+            <!-- 테트리스 게임 화면 -->
+            <div id="tetris" class="screen game-screen">
+                <div class="game-header">
+                    <h2>테트리스</h2>
+                    <div class="game-info">
+                        <span id="tetris-score">점수: 0</span>
+                        <span id="tetris-level">레벨: 1</span>
+                        <span id="tetris-lines">줄: 0</span>
+                        <button id="tetris-back-to-menu" class="btn-secondary">메뉴로</button>
+                    </div>
+                </div>
+                
+                <div class="tetris-container">
+                    <div class="tetris-side-panel">
+                        <div class="next-piece">
+                            <h4>다음 블록</h4>
+                            <canvas id="next-canvas" width="80" height="80"></canvas>
+                        </div>
+                        <button id="tetris-start" class="btn-primary">게임 시작</button>
+                        <button id="tetris-pause" class="btn-secondary">일시정지</button>
+                    </div>
+                    
+                    <canvas id="tetris-canvas" width="200" height="400"></canvas>
+                    
+                    <div class="tetris-controls">
+                        <button id="tetris-rotate">↻ 회전</button>
+                        <div class="tetris-move-buttons">
+                            <button id="tetris-left">← 왼쪽</button>
+                            <button id="tetris-down">↓ 아래</button>
+                            <button id="tetris-right">→ 오른쪽</button>
+                        </div>
+                        <button id="tetris-drop">⬇ 떨어뜨리기</button>
+                    </div>
+                </div>
+                
+                <div class="tetris-instructions">
+                    <p>← → 이동 | ↑ 회전 | ↓ 빠르게 | 스페이스 바로 떨어뜨리기</p>
+                </div>
+            </div>
+
+            <!-- 2048 게임 화면 -->
+            <div id="game2048" class="screen game-screen">
+                <div class="game-header">
+                    <h2>2048</h2>
+                    <div class="game-info">
+                        <span id="game2048-score">점수: 0</span>
+                        <button id="game2048-restart" class="btn-primary">새 게임</button>
+                        <button id="game2048-back-to-menu" class="btn-secondary">메뉴로</button>
+                    </div>
+                </div>
+                
+                <div class="game2048-container game-container">
+                </div>
+                
+                <div class="game2048-instructions">
+                    <p>화살표 키 또는 스와이프로 타일을 움직이세요!</p>
+                </div>
+            </div>
+
+            <!-- 지뢰찾기 게임 화면 -->
+            <div id="minesweeper" class="screen game-screen">
+                <div class="game-header">
+                    <h2>지뢰찾기</h2>
+                    <div class="game-info">
+                        <span id="mines-left">💣 10</span>
+                        <span id="mines-timer">⏱️ 0</span>
+                        <button id="mines-restart" class="btn-primary">새 게임</button>
+                        <button id="mines-back-to-menu" class="btn-secondary">메뉴로</button>
+                    </div>
+                </div>
+                
+                <div class="difficulty-selector">
+                    <button class="diff-btn" data-level="easy">초급 (9x9)</button>
+                    <button class="diff-btn active" data-level="medium">중급 (16x16)</button>
+                    <button class="diff-btn" data-level="hard">고급 (30x16)</button>
+                </div>
+                
+                <div class="minesweeper-container game-container">
+                </div>
+                
+                <div class="mines-instructions">
+                    <p>좌클릭: 열기 | 우클릭: 깃발 | 숫자는 주변 지뢰 개수</p>
+                </div>
+            </div>
+
+            <!-- 브레이크아웃 게임 화면 -->
+            <div id="breakout" class="screen game-screen">
+                <div class="game-header">
+                    <h2>브레이크아웃</h2>
+                    <div class="game-info">
+                        <span id="breakout-score">점수: 0</span>
+                        <span id="breakout-lives">❤️ 3</span>
+                        <button id="breakout-start" class="btn-primary">게임 시작</button>
+                        <button id="breakout-back-to-menu" class="btn-secondary">메뉴로</button>
+                    </div>
+                </div>
+                
+                <div class="breakout-container game-container">
+                </div>
+                
+                <div class="breakout-instructions">
+                    <p>← → 또는 마우스로 패들 이동 | 모든 벽돌을 깨세요!</p>
+                </div>
+            </div>
+
+            <!-- 플럭스 점프 게임 화면 -->
+            <div id="fluxjump" class="screen game-screen">
+                <div class="game-header">
+                    <h2>플럭스 점프</h2>
+                    <div class="game-info">
+                        <button id="fluxjump-back-to-menu" class="btn-secondary">메뉴로</button>
+                    </div>
+                </div>
+                
+                <div class="fluxjump-container game-container">
+                    <canvas id="fluxjump-canvas"></canvas>
+                </div>
+                
+                <div class="fluxjump-instructions">
+                    <p>스페이스/↑/클릭/터치로 점프 | P키로 일시정지</p>
+                </div>
+            </div>
+
+            <!-- 쿠키 클리커 게임 화면 -->
+            <div id="cookieclicker" class="screen game-screen">
+                <div class="game-header">
+                    <h2>쿠키 클리커</h2>
+                    <div class="game-info">
+                        <button id="cookieclicker-back-to-menu" class="btn-secondary">메뉴로</button>
+                    </div>
+                </div>
+                
+                <div class="cookieclicker-container game-container">
+                </div>
+                
+                <div class="cookieclicker-instructions">
+                    <p>쿠키를 클릭해서 포인트를 모으고 업그레이드하세요!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

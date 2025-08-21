@@ -1,10 +1,13 @@
 import { GameManager } from './core/GameManager.js';
-import { Game2048 } from './games/Game2048.js';
-import { Minesweeper } from './games/Minesweeper.js';
-import { Breakout } from './games/Breakout.js';
-import { TicTacToe } from './games/TicTacToe.js';
-import { Snake } from './games/Snake.js';
-import { Tetris } from './games/Tetris.js';
+import { TicTacToe } from './games/strategy/TicTacToe.js';
+import { Snake } from './games/action/Snake.js';
+import { Breakout } from './games/action/Breakout.js';
+import { Tetris } from './games/puzzle/Tetris.js';
+import { Game2048 } from './games/puzzle/Game2048.js';
+import { Minesweeper } from './games/puzzle/Minesweeper.js';
+import { FluxJump } from './games/casual/FluxJump.js';
+import { CookieClicker } from './games/casual/CookieClicker.js';
+import AdManager from './common/monetization/AdManager.js';
 
 class FluxGameApp {
     constructor() {
@@ -25,9 +28,18 @@ class FluxGameApp {
         this.gameManager.registerGame(new Game2048());
         this.gameManager.registerGame(new Minesweeper());
         this.gameManager.registerGame(new Breakout());
+        
+        // 플럭스 점프 게임
+        this.gameManager.registerGame(new FluxJump());
+        
+        // 쿠키 클리커 게임
+        this.gameManager.registerGame(new CookieClicker());
     }
 
     init() {
+        // 광고 시스템 초기화
+        AdManager.init();
+        
         this.bindEvents();
         this.showScreen('menu');
     }
@@ -41,12 +53,13 @@ class FluxGameApp {
             });
         });
 
-        // 메뉴로 돌아가기 버튼들
-        document.querySelectorAll('[id$="-back-to-menu"]').forEach(btn => {
-            btn.addEventListener('click', () => {
+        // 메뉴로 돌아가기 버튼들 - 이벤트 위임 사용
+        document.addEventListener('click', (e) => {
+            if (e.target.id && e.target.id.endsWith('-back-to-menu')) {
+                e.preventDefault();
                 this.showScreen('menu');
                 this.gameManager.stopCurrentGame();
-            });
+            }
         });
     }
 
@@ -63,6 +76,8 @@ class FluxGameApp {
     }
 
     startGame(gameId) {
+        console.log('Starting game:', gameId);
+        
         const gameScreen = document.getElementById(gameId);
         if (!gameScreen) {
             console.error(`Game screen '${gameId}' not found`);
@@ -75,9 +90,12 @@ class FluxGameApp {
         // 게임 컨테이너 찾기
         let container = gameScreen.querySelector('.game-container');
         if (!container) {
-            // 기존 게임들을 위한 폴백
+            console.log(`No .game-container found for ${gameId}, using gameScreen`);
             container = gameScreen;
         }
+        
+        // 컨테이너 확인
+        console.log('Container:', container);
         
         // 게임 시작
         this.gameManager.setContainer(container);
@@ -87,6 +105,7 @@ class FluxGameApp {
             console.log(`Started game: ${game.name}`);
         } catch (error) {
             console.error('Failed to start game:', error);
+            console.error('Error stack:', error.stack);
             this.showScreen('menu');
         }
     }

@@ -1,0 +1,334 @@
+/* 틱택토 스타일 */
+
+.tictactoe-game {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 15px;
+}
+
+/* 게임 헤더 */
+.game-header {
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 20px;
+}
+
+.game-mode {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.mode-btn.active {
+    background: white;
+    color: #667eea;
+    border-color: white;
+}
+
+/* 난이도 선택 */
+.difficulty-selector {
+    display: flex;
+    gap: 10px;
+    transition: opacity 0.3s ease;
+}
+
+.difficulty-selector.hidden {
+    display: none;
+}
+
+.difficulty-btn {
+    flex: 1;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.difficulty-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.difficulty-btn.active {
+    background: rgba(255, 255, 255, 0.8);
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* 점수 표시 */
+.game-scores {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.score-item {
+    text-align: center;
+}
+
+.score-label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.score-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+}
+
+/* 게임 정보 */
+.game-info {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.current-player {
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 게임 보드 */
+.board-container {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.tictactoe-board {
+    display: grid;
+    grid-template-columns: repeat(3, 120px);
+    grid-template-rows: repeat(3, 120px);
+    gap: 10px;
+    background: #e0e0e0;
+    padding: 10px;
+    border-radius: 15px;
+}
+
+.cell {
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.cell:hover:not(.filled) {
+    background: #f5f5f5;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cell-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 48px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+/* X와 O 스타일 */
+.cell.x .cell-content {
+    color: #f44336;
+}
+
+.cell.o .cell-content {
+    color: #2196f3;
+}
+
+/* 애니메이션 효과 */
+.cell.move-animation .cell-content {
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0) rotate(180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(90deg);
+    }
+    100% {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+    }
+}
+
+/* 승리 라인 효과 */
+.cell.winning-cell {
+    background: #4caf50;
+    animation: winningPulse 0.5s ease-out;
+}
+
+.cell.winning-cell .cell-content {
+    color: white;
+    animation: winningBounce 0.5s ease-out;
+}
+
+@keyframes winningPulse {
+    0% {
+        background: white;
+    }
+    100% {
+        background: #4caf50;
+    }
+}
+
+@keyframes winningBounce {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+}
+
+/* 결과 표시 */
+.game-result {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px 50px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    z-index: 10;
+    animation: slideIn 0.3s ease-out;
+}
+
+.game-result.hidden {
+    display: none;
+}
+
+.game-result.win {
+    background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+    color: white;
+}
+
+.game-result.lose {
+    background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+    color: white;
+}
+
+.game-result.draw {
+    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+    color: white;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.result-content h3 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.result-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.result-actions button {
+    min-width: 120px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .tictactoe-board {
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(3, 100px);
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .cell-content {
+        font-size: 40px;
+    }
+    
+    .game-scores {
+        gap: 15px;
+        padding: 10px 20px;
+    }
+    
+    .score-value {
+        font-size: 24px;
+    }
+    
+    .mode-btn {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tictactoe-board {
+        grid-template-columns: repeat(3, 80px);
+        grid-template-rows: repeat(3, 80px);
+        gap: 6px;
+        padding: 6px;
+    }
+    
+    .cell-content {
+        font-size: 32px;
+    }
+    
+    .result-content h3 {
+        font-size: 24px;
+    }
+    
+    .game-result {
+        padding: 20px 30px;
+    }
+}

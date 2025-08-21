@@ -64,6 +64,8 @@ header p {
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: left;
+    text-decoration: none;
+    color: inherit;
 }
 
 .game-btn:hover {

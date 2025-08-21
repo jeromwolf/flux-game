@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>틱택토 - Flux Game</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/common/components.css">
+    <link rel="stylesheet" href="../css/common/ads.css">
+    <link rel="stylesheet" href="../css/games/strategy/tictactoe.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .game-container {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1>⭕ 틱택토</h1>
+            <a href="../index.html" class="btn-secondary">메뉴로 돌아가기</a>
+        </div>
+        
+        <div id="game-container" class="game-container">
+            <!-- 게임이 여기에 렌더링됩니다 -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { TicTacToe } from '../js/games/strategy/TicTacToe.js';
+        import AdManager from '../js/common/monetization/AdManager.js';
+        
+        // 광고 시스템 초기화
+        AdManager.init();
+        
+        // 게임 시작
+        const game = new TicTacToe();
+        const container = document.getElementById('game-container');
+        
+        // 게임 마운트
+        game.mount(container);
+        
+        // 첫 클릭 시 사운드 활성화 안내
+        let firstClick = true;
+        document.addEventListener('click', () => {
+            if (firstClick) {
+                firstClick = false;
+                console.log('🔊 사운드가 활성화되었습니다!');
+            }
+        }, { once: true });
+        
+        // 페이지 떠날 때 정리
+        window.addEventListener('beforeunload', () => {
+            game.unmount();
+        });
+    </script>
+</body>
+</html>

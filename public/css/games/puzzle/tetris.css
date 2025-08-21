@@ -1,0 +1,359 @@
+/* 테트리스 게임 스타일 */
+.tetris-game {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* 사이드바 스타일 */
+.tetris-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 150px;
+}
+
+.tetris-left {
+    align-items: flex-end;
+}
+
+.tetris-right {
+    align-items: flex-start;
+}
+
+/* 메인 게임 영역 */
+.tetris-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 캔버스 스타일 */
+#tetris-canvas {
+    border: 3px solid #4a5568;
+    border-radius: 10px;
+    box-shadow: 
+        0 0 20px rgba(0, 240, 240, 0.2),
+        0 10px 40px rgba(0, 0, 0, 0.3),
+        inset 0 0 20px rgba(0, 0, 0, 0.2);
+    background: #1a1a2e;
+}
+
+#next-canvas,
+#hold-canvas {
+    border: 2px solid #4a5568;
+    border-radius: 8px;
+    background: #1a1a2e;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 섹션 스타일 */
+.tetris-hold-section,
+.tetris-next-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.tetris-hold-section h4,
+.tetris-next-section h4 {
+    margin: 0 0 10px 0;
+    color: #e2e8f0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.tetris-tip {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 8px;
+}
+
+/* 통계 표시 */
+.tetris-stats {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.stat-value {
+    color: #f1f5f9;
+    font-size: 20px;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+}
+
+#tetris-combo {
+    color: #f59e0b;
+}
+
+/* 버튼 스타일 */
+.tetris-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tetris-buttons button {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(100, 116, 139, 0.4);
+}
+
+/* 게임 정보 */
+.tetris-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.tetris-info h5 {
+    margin: 0 0 10px 0;
+    color: #e2e8f0;
+    font-size: 14px;
+}
+
+.tetris-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tetris-info li {
+    color: #94a3b8;
+    font-size: 12px;
+    padding: 4px 0;
+}
+
+/* 모바일 컨트롤 */
+.tetris-controls-mobile {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.tetris-control-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.tetris-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    border: 2px solid #4a5568;
+    background: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.tetris-btn:active {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+}
+
+/* 사운드 안내 */
+.tetris-sound-notice {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .tetris-game {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .tetris-sidebar {
+        flex-direction: row;
+        justify-content: center;
+        gap: 15px;
+        min-width: auto;
+    }
+    
+    .tetris-left,
+    .tetris-right {
+        align-items: center;
+    }
+    
+    .tetris-stats {
+        display: flex;
+        gap: 20px;
+        padding: 15px;
+    }
+    
+    .stat-item {
+        flex-direction: column;
+        border-bottom: none;
+        padding: 0;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+    }
+    
+    .stat-value {
+        font-size: 18px;
+    }
+    
+    .tetris-buttons {
+        flex-direction: row;
+    }
+    
+    .tetris-buttons button {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .tetris-info {
+        display: none;
+    }
+    
+    .tetris-controls-mobile {
+        display: flex;
+    }
+    
+    #tetris-canvas {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .tetris-game {
+        gap: 15px;
+    }
+    
+    .tetris-sidebar {
+        gap: 10px;
+    }
+    
+    .tetris-hold-section,
+    .tetris-next-section {
+        padding: 10px;
+    }
+    
+    .tetris-hold-section h4,
+    .tetris-next-section h4 {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    #next-canvas,
+    #hold-canvas {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .tetris-stats {
+        gap: 15px;
+        padding: 10px;
+    }
+    
+    .tetris-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+}
+
+/* 애니메이션 */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 5px rgba(0, 240, 240, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(0, 240, 240, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(0, 240, 240, 0.5);
+    }
+}
+
+/* 레벨업 효과 */
+.level-up {
+    animation: pulse 0.6s ease-in-out;
+}
+
+/* 테트리스 효과 */
+.tetris-effect {
+    animation: glow 0.8s ease-in-out;
+}

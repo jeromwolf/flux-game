@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테트리스 - Flux Game</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/common/components.css">
+    <link rel="stylesheet" href="../css/common/ads.css">
+    <link rel="stylesheet" href="../css/games/puzzle/tetris.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 10px;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .game-container {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1>🧱 테트리스</h1>
+            <a href="../index.html" class="btn-secondary">메뉴로 돌아가기</a>
+        </div>
+        
+        <div id="game-container" class="game-container">
+            <!-- 게임이 여기에 렌더링됩니다 -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { Tetris } from '../js/games/puzzle/Tetris.js';
+        import AdManager from '../js/common/monetization/AdManager.js';
+        import SoundManager from '../js/common/utils/SoundManager.js';
+        
+        // 광고 시스템 초기화
+        AdManager.init();
+        
+        // 사운드 시스템 초기화 및 기본 사운드 등록
+        SoundManager.init();
+        SoundManager.registerDefaultSounds();
+        
+        // 사용자 인터랙션 후 사운드 활성화
+        document.addEventListener('click', () => {
+            SoundManager.init();
+        }, { once: true });
+        
+        // 게임 시작
+        const game = new Tetris();
+        const container = document.getElementById('game-container');
+        
+        // 게임 마운트
+        game.mount(container);
+        
+        // 페이지 떠날 때 정리
+        window.addEventListener('beforeunload', () => {
+            game.unmount();
+        });
+    </script>
+</body>
+</html>

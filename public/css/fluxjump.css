@@ -1,0 +1,34 @@
+.fluxjump-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    min-height: 600px;
+}
+
+#fluxjump-canvas {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
+.fluxjump-instructions {
+    text-align: center;
+    padding: 10px;
+    color: #666;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .fluxjump-container {
+        padding: 10px;
+        min-height: 400px;
+    }
+    
+    #fluxjump-canvas {
+        touch-action: none;
+    }
+}

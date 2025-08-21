@@ -1,0 +1,422 @@
+/* 2048 게임 스타일 */
+
+.game2048-wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 게임 헤더 */
+.game2048-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.game-title h1 {
+    font-size: 48px;
+    font-weight: bold;
+    margin: 0;
+    color: #776e65;
+}
+
+.game-subtitle {
+    font-size: 14px;
+    color: #776e65;
+    margin: 5px 0 0 0;
+}
+
+/* 점수 표시 */
+.scores-container {
+    display: flex;
+    gap: 10px;
+}
+
+.score-box {
+    background: #bbada0;
+    padding: 10px 20px;
+    border-radius: 3px;
+    text-align: center;
+    position: relative;
+    min-width: 70px;
+}
+
+.score-label {
+    font-size: 12px;
+    color: #eee4da;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.score-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    margin-top: 5px;
+}
+
+.score-add {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #776e65;
+    opacity: 0;
+    transform: translateY(0);
+}
+
+.score-add-active {
+    animation: scoreAdd 0.6s ease-out;
+}
+
+@keyframes scoreAdd {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+}
+
+/* 게임 컨트롤 */
+.game-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.game-controls button {
+    flex: 1;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: #8f7a66;
+    color: #f9f6f2;
+}
+
+.btn-primary:hover {
+    background: #9f8a76;
+}
+
+.btn-secondary {
+    background: #f9f6f2;
+    color: #776e65;
+    border: 1px solid #bbada0;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #e9e6e2;
+}
+
+.btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 게임 보드 */
+.game-board-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.game2048-board {
+    background: #bbada0;
+    border-radius: 6px;
+    width: 400px;
+    height: 400px;
+    position: relative;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.grid-container {
+    position: absolute;
+    z-index: 1;
+}
+
+.grid-cell {
+    width: 87.5px;
+    height: 87.5px;
+    border-radius: 3px;
+    background: rgba(238, 228, 218, 0.35);
+    position: absolute;
+}
+
+/* 그리드 셀 위치 */
+.grid-cell:nth-child(1) { transform: translate(0px, 0px); }
+.grid-cell:nth-child(2) { transform: translate(100px, 0px); }
+.grid-cell:nth-child(3) { transform: translate(200px, 0px); }
+.grid-cell:nth-child(4) { transform: translate(300px, 0px); }
+.grid-cell:nth-child(5) { transform: translate(0px, 100px); }
+.grid-cell:nth-child(6) { transform: translate(100px, 100px); }
+.grid-cell:nth-child(7) { transform: translate(200px, 100px); }
+.grid-cell:nth-child(8) { transform: translate(300px, 100px); }
+.grid-cell:nth-child(9) { transform: translate(0px, 200px); }
+.grid-cell:nth-child(10) { transform: translate(100px, 200px); }
+.grid-cell:nth-child(11) { transform: translate(200px, 200px); }
+.grid-cell:nth-child(12) { transform: translate(300px, 200px); }
+.grid-cell:nth-child(13) { transform: translate(0px, 300px); }
+.grid-cell:nth-child(14) { transform: translate(100px, 300px); }
+.grid-cell:nth-child(15) { transform: translate(200px, 300px); }
+.grid-cell:nth-child(16) { transform: translate(300px, 300px); }
+
+/* 타일 컨테이너 */
+.tile-container {
+    position: absolute;
+    z-index: 2;
+}
+
+/* 타일 스타일 */
+.tile {
+    position: absolute;
+    width: 87.5px;
+    height: 87.5px;
+    background: #eee4da;
+    border-radius: 3px;
+    font-size: 55px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    transition: transform 0.15s ease-in-out;
+    z-index: 10;
+}
+
+/* 타일 색상 */
+.tile-2 { background: #eee4da; color: #776e65; }
+.tile-4 { background: #ede0c8; color: #776e65; }
+.tile-8 { background: #f2b179; color: #f9f6f2; }
+.tile-16 { background: #f59563; color: #f9f6f2; }
+.tile-32 { background: #f67c5f; color: #f9f6f2; }
+.tile-64 { background: #f65e3b; color: #f9f6f2; }
+.tile-128 { background: #edcf72; color: #f9f6f2; font-size: 45px; }
+.tile-256 { background: #edcc61; color: #f9f6f2; font-size: 45px; }
+.tile-512 { background: #edc850; color: #f9f6f2; font-size: 45px; }
+.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 35px; }
+.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 35px; }
+
+/* 큰 숫자 타일 */
+.tile-super {
+    background: #3c3a32;
+    color: #f9f6f2;
+    font-size: 30px;
+}
+
+/* 타일 애니메이션 */
+.tile-new {
+    animation: appear 0.2s ease-in-out;
+    z-index: 20;
+}
+
+@keyframes appear {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.tile-merged {
+    animation: pop 0.2s ease-in-out;
+    z-index: 20;
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* 콤보 표시 */
+.combo-indicator {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #f2b179 0%, #f59563 100%);
+    color: white;
+    padding: 10px 30px;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: comboSlide 0.3s ease-out;
+}
+
+@keyframes comboSlide {
+    from {
+        transform: translateX(-50%) translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.combo-indicator.hidden {
+    display: none;
+}
+
+/* 게임 메시지 */
+.game-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.73);
+    z-index: 100;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.message-content {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.message-content h2 {
+    font-size: 36px;
+    margin: 0 0 15px 0;
+    color: #776e65;
+}
+
+.message-content.win h2 {
+    color: #f59563;
+}
+
+.message-content.lose h2 {
+    color: #776e65;
+}
+
+.message-content p {
+    font-size: 18px;
+    color: #776e65;
+    margin: 0 0 20px 0;
+}
+
+.message-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* 게임 설명 */
+.game-instructions {
+    background: #f9f6f2;
+    border-radius: 6px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.game-instructions p {
+    margin: 5px 0;
+    color: #776e65;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.game-instructions strong {
+    color: #776e65;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 520px) {
+    .game2048-wrapper {
+        padding: 10px;
+    }
+    
+    .game2048-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .game-title h1 {
+        font-size: 36px;
+    }
+    
+    .game2048-board {
+        width: 300px;
+        height: 300px;
+        padding: 8px;
+    }
+    
+    .grid-cell,
+    .tile {
+        width: 65px;
+        height: 65px;
+    }
+    
+    .tile {
+        font-size: 35px;
+    }
+    
+    .tile-128,
+    .tile-256,
+    .tile-512 {
+        font-size: 30px;
+    }
+    
+    .tile-1024,
+    .tile-2048 {
+        font-size: 25px;
+    }
+    
+    /* 모바일 그리드 위치 조정 */
+    .grid-cell:nth-child(1) { transform: translate(0px, 0px); }
+    .grid-cell:nth-child(2) { transform: translate(75px, 0px); }
+    .grid-cell:nth-child(3) { transform: translate(150px, 0px); }
+    .grid-cell:nth-child(4) { transform: translate(225px, 0px); }
+    .grid-cell:nth-child(5) { transform: translate(0px, 75px); }
+    .grid-cell:nth-child(6) { transform: translate(75px, 75px); }
+    .grid-cell:nth-child(7) { transform: translate(150px, 75px); }
+    .grid-cell:nth-child(8) { transform: translate(225px, 75px); }
+    .grid-cell:nth-child(9) { transform: translate(0px, 150px); }
+    .grid-cell:nth-child(10) { transform: translate(75px, 150px); }
+    .grid-cell:nth-child(11) { transform: translate(150px, 150px); }
+    .grid-cell:nth-child(12) { transform: translate(225px, 150px); }
+    .grid-cell:nth-child(13) { transform: translate(0px, 225px); }
+    .grid-cell:nth-child(14) { transform: translate(75px, 225px); }
+    .grid-cell:nth-child(15) { transform: translate(150px, 225px); }
+    .grid-cell:nth-child(16) { transform: translate(225px, 225px); }
+}

@@ -5,15 +5,18 @@ export class BaseGame {
         this.description = description;
         this.container = null;
         this.isRunning = false;
+        this.isActive = false;
     }
 
     mount(container) {
         this.container = container;
+        this.isActive = true;
         this.init();
         this.render();
     }
 
     unmount() {
+        this.isActive = false;
         this.cleanup();
         if (this.container) {
             this.container.innerHTML = '';
