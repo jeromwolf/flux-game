@@ -8,118 +8,118 @@ Flux Game은 지하철에서 할 수 있는 간단한 게임 꾸러미입니다.
 
 ## Context Summary
 
-2024년 12월부터 개발된 이 프로젝트는 Kelly가 지하철에서 간단히 즐길 수 있는 게임 모음으로 시작되어, 현재 9개의 완성된 게임과 확장 가능한 엔터프라이즈급 아키텍처를 갖춘 게임 플랫폼으로 발전했습니다.
+2024년 12월부터 개발된 이 프로젝트는 Kelly가 지하철에서 간단히 즐길 수 있는 게임 모음으로 시작되어, 현재 10개의 완성된 게임과 Next.js 기반의 현대적인 웹 게임 플랫폼으로 발전했습니다.
 
 ### 주요 특징
-- **9개의 완성된 게임**: 다양한 장르와 난이도
+- **10개의 완성된 게임**: 다양한 장르와 난이도
+- **Next.js + TypeScript**: 최신 웹 기술 스택 사용
+- **게임 분석 시스템**: 방문수, 플레이 시간 추적으로 인기도 기반 정렬
 - **모바일 퍼스트 디자인**: 터치, 제스처, 반응형 UI
-- **수익화 시스템**: 광고 통합 (AdManager)
-- **프리미엄 사운드**: Web Audio API 기반 동적 사운드 생성
-- **파티클 시스템**: Canvas 기반 고품질 비주얼 효과
-- **컴포넌트 아키텍처**: 확장성과 유지보수성 극대화
+- **동적 게임 로딩**: 필요한 게임만 로드하여 성능 최적화
+- **로컬 저장소 활용**: 최고 점수, 게임 진행 상황 저장
 
 ## Development Commands
 
-- **웹 서버 실행**: `npm start` 또는 `npm run dev` (포트 3100)
-- **콘솔 게임**: `npm run console`
-- **개발 모드**: `node src/server.js`
+- **개발 서버 실행**: `npm run dev` 또는 `./dev.sh` (포트 3100)
+- **프로덕션 빌드**: `npm run build`
+- **프로덕션 실행**: `npm start`
+- **서버 중지**: `./stop.sh`
 
 ## Architecture
 
-### Core Components (2024년 12월 리팩토링 완료)
+### Next.js 마이그레이션 (2024년 12월 완료)
 
-- **EnhancedBaseGame** (`public/js/core/EnhancedBaseGame.js`): 수익화, 애널리틱스, 사운드가 통합된 게임 베이스 클래스
-- **BaseGame** (`public/js/core/BaseGame.js`): 기본적인 게임 라이프사이클 관리
-- **AdManager** (`public/js/common/monetization/AdManager.js`): 광고 시스템 (배너, 인터스티셜, 리워드)
-- **SoundManager** (`public/js/common/utils/SoundManager.js`): Web Audio API 기반 사운드 엔진
-- **Analytics** (`public/js/common/utils/Analytics.js`): 게임 분석 및 메트릭스
+- **Next.js 15.5.0**: App Router 기반 현대적인 React 프레임워크
+- **TypeScript**: 타입 안정성과 개발 생산성 향상
+- **Tailwind CSS v3**: 유틸리티 우선 CSS 프레임워크
+- **동적 게임 로딩**: 게임별 독립적인 TypeScript 클래스
+- **GameAnalytics** (`src/lib/analytics/GameAnalytics.ts`): 게임 방문 및 플레이 시간 추적
 
 ### Game Categories & Structure
 
-모든 게임은 `EnhancedBaseGame`을 상속받으며 카테고리별로 체계적으로 구성됩니다:
+모든 게임은 TypeScript 클래스로 구현되며 mount/unmount 라이프사이클을 가집니다:
 
-#### 🎲 Casual Games (`public/js/games/casual/`)
-- **쿠키 클리커**: 아이들 클리커 게임 (업그레이드, 부스터, 목표 시스템)
-- **플럭스 점프**: 무한 러너 (파워업, 레벨 진행, 파티클 효과)  
-- **미스터리 박스**: 호기심 유발 게임 (랜덤 보상, 사운드 큐)
+#### 🎲 Casual Games
+- **쿠키 클리커**: 아이들 클리커 게임 (업그레이드, 자동 저장)
+- **플럭스 점프**: 엔들리스 러너 (장애물, 별 수집, 거리 추적)
 
-#### 🧩 Puzzle Games (`public/js/games/puzzle/`)
-- **2048**: 숫자 타일 병합 (되돌리기, 콤보 시스템, 애니메이션)
-- **테트리스**: 블록 퍼즐 (홀드, T-스핀, 벽킥, 레벨 시스템)
-- **지뢰찾기**: 논리 퍼즐 (코드 기능, 최고 기록, 난이도별)
+#### 🧩 Puzzle Games
+- **2048**: 숫자 타일 병합 (되돌리기, 애니메이션)
+- **테트리스**: 블록 퍼즐 (홀드, 레벨 시스템, 속도 증가)
+- **지뢰찾기**: 논리 퍼즐 (3가지 난이도, 최고 기록)
 
-#### ⚔️ Action Games (`public/js/games/action/`)  
-- **스네이크**: 뱀 게임 (파워업, 특수 음식, 장애물, 보스)
-- **브레이크아웃**: 블록 깨기 (파워업, 콤보, 특수 블록)
+#### ⚔️ Action Games
+- **스네이크**: 뱀 게임 (터치 컨트롤, 장애물)
+- **브레이크아웃**: 블록 깨기 (파워업, 멀티히트 블록)
 
-#### 🕹️ Arcade Games (`public/js/games/arcade/`)
-- **버블 슈터**: 색깔 매칭 슈팅 (물리 엔진, 콤보, 파워업)
+#### 🕹️ Arcade Games
+- **버블 슈터**: 색깔 매칭 슈팅 (육각 그리드, 콤보 시스템)
+- **플래피 플럭스**: 파이프 피하기 (중력, 파티클 효과)
 
-#### 🎯 Strategy Games (`public/js/games/strategy/`)
+#### 🎯 Strategy Games
 - **틱택토**: 전략 보드 게임 (AI 상대, 미니맥스 알고리즘)
 
-### File Structure (2024년 12월 현재)
+### File Structure (Next.js 마이그레이션 후)
 
 ```
-public/
-├── games/                    # 게임별 HTML 페이지
-│   ├── bubble-shooter.html
-│   ├── cookieclicker.html
-│   └── [8개 더...]
-├── css/
-│   ├── common/              # 공통 컴포넌트 스타일
-│   │   ├── components.css
-│   │   └── ads.css
-│   └── games/               # 게임별 전용 CSS
-│       ├── casual/
-│       ├── puzzle/
-│       ├── action/
-│       └── arcade/
-├── js/
-│   ├── common/              # 공통 시스템
-│   │   ├── monetization/    # AdManager
-│   │   ├── utils/          # SoundManager, Analytics
-│   │   └── components/     # ScoreManager
-│   ├── core/               # 게임 엔진
-│   │   ├── BaseGame.js
-│   │   └── EnhancedBaseGame.js
-│   └── games/              # 게임 구현체들
-│       ├── casual/         # 3개 게임
-│       ├── puzzle/         # 3개 게임  
-│       ├── action/         # 2개 게임
-│       ├── arcade/         # 1개 게임
-│       └── strategy/       # 1개 게임
-└── index.html              # 메인 게임 선택 페이지
+src/
+├── app/                      # Next.js App Router
+│   ├── page.tsx             # 메인 페이지 (게임 목록)
+│   ├── layout.tsx           # 루트 레이아웃
+│   └── games/
+│       └── [gameId]/
+│           └── page.tsx     # 동적 게임 페이지
+├── lib/
+│   ├── games/               # 게임 구현체 (TypeScript)
+│   │   ├── Game2048.ts
+│   │   ├── TicTacToe.ts
+│   │   ├── SnakeGame.ts
+│   │   ├── TetrisGame.ts
+│   │   ├── Minesweeper.ts
+│   │   ├── BreakoutGame.ts
+│   │   ├── BubbleShooter.ts
+│   │   ├── CookieClicker.ts
+│   │   ├── FluxJump.ts
+│   │   └── FlappyFlux.ts
+│   └── analytics/
+│       └── GameAnalytics.ts # 게임 분석 시스템
+└── components/              # React 컴포넌트
+    ├── games/
+    └── ui/
+
+public/                      # 정적 파일 (레거시)
+├── index.html              # 기존 HTML 버전
+└── js/                     # 기존 JavaScript 게임들
 ```
 
-### Adding New Games (최신 가이드)
+### Adding New Games (Next.js 가이드)
 
 새 게임을 추가하려면:
 
-1. **게임 클래스 생성**: 적절한 카테고리 폴더에 `EnhancedBaseGame` 상속
-```javascript
-export class NewGame extends EnhancedBaseGame {
-    constructor() {
-        super({
-            id: 'new-game',
-            name: '새 게임',
-            description: '게임 설명',
-            category: 'arcade',
-            difficulty: 'medium',
-            hasAds: true,
-            adPlacements: ['start', 'gameover']
-        });
-    }
+1. **TypeScript 게임 클래스 생성**: `src/lib/games/NewGame.ts`
+```typescript
+export default class NewGame {
+  private container: HTMLElement | null = null;
+  
+  mount(container: HTMLElement) {
+    this.container = container;
+    // 게임 초기화
+  }
+  
+  unmount() {
+    // 정리 작업
+  }
 }
 ```
 
-2. **CSS 파일 생성**: `public/css/games/{category}/new-game.css`
+2. **게임 로더에 추가**: `src/app/games/[gameId]/page.tsx`에 import 케이스 추가
 
-3. **HTML 페이지 생성**: `public/games/new-game.html`
+3. **메인 페이지에 추가**: `src/app/page.tsx`의 games 배열에 추가
 
-4. **메인 페이지에 추가**: `public/index.html`에 게임 버튼 추가
-
-5. **사운드 등록**: `registerSounds()` 메서드에서 게임별 사운드 정의
+4. **로컬 스토리지 활용**: 최고 점수 저장
+```typescript
+localStorage.setItem('new-game-highscore', score.toString());
+```
 
 ## Key Decisions & Implementation Notes (2024년 12월 업데이트)
 
@@ -142,16 +142,17 @@ export class NewGame extends EnhancedBaseGame {
 - **게임별 특화**: 각 게임마다 8-10개의 고유한 사운드 효과
 - **Web Audio API 활용**: 브라우저 네이티브 API로 최고의 성능과 호환성
 
-### 현재 완성된 게임 (9개)
-1. **쿠키 클리커** (Casual) - 아이들 게임의 정석, 업그레이드와 목표 시스템
-2. **플럭스 점프** (Casual) - 무한 러너, 파워업과 레벨 진행  
-3. **미스터리 박스** (Casual) - 호기심 유발, 랜덤 리워드
-4. **2048** (Puzzle) - 되돌리기 기능과 콤보 시스템
-5. **테트리스** (Puzzle) - T-스핀, 홀드, 벽킥 등 모던 기능
-6. **지뢰찾기** (Puzzle) - 코드 기능, 난이도별 최고 기록
-7. **스네이크** (Action) - 파워업, 장애물, 보스 시스템  
-8. **브레이크아웃** (Action) - 특수 블록, 파워업, 콤보
-9. **버블 슈터** (Arcade) - 물리 엔진, 육각 그리드, 파워업
+### 현재 완성된 게임 (10개)
+1. **쿠키 클리커** (Casual) - 아이들 게임, 업그레이드 시스템
+2. **플럭스 점프** (Casual) - 엔들리스 러너, 장애물 회피
+3. **2048** (Puzzle) - 숫자 타일 병합, 되돌리기 기능
+4. **테트리스** (Puzzle) - 블록 쌓기, 레벨 시스템
+5. **지뢰찾기** (Puzzle) - 논리 퍼즐, 3가지 난이도
+6. **스네이크** (Action) - 뱀 게임, 터치 컨트롤
+7. **브레이크아웃** (Action) - 블록 깨기, 파워업
+8. **버블 슈터** (Arcade) - 색깔 매칭, 콤보 시스템
+9. **플래피 플럭스** (Arcade) - 파이프 피하기, 중력 물리
+10. **틱택토** (Strategy) - AI 대전, 미니맥스 알고리즘
 
 ### 사용자 중심 설계 원칙
 - **Kelly의 요구사항**: 게임 초보자도 쉽게 접근 가능
@@ -170,6 +171,14 @@ export class NewGame extends EnhancedBaseGame {
 - **Canvas 최적화**: requestAnimationFrame과 오프스크린 캔버스 활용
 - **이벤트 위임**: DOM 이벤트 리스너 최적화
 
-### 향후 계획 (아케이드 게임 시리즈)
-- **다음 예정**: 프로거 (길 건너기) - 무한 스크롤, 장애물 패턴
-- **계획 중**: 팩맨 스타일 - 미로 시스템, AI 유령들
+### 최근 업데이트 (2024년 12월)
+- **Next.js 15.5.0 마이그레이션**: HTML 기반에서 현대적 React 프레임워크로 전환
+- **TypeScript 도입**: 모든 게임을 타입 안전한 코드로 재작성
+- **게임 분석 시스템**: 방문수와 플레이 시간 기반 인기도 추적
+- **10번째 게임 추가**: 플래피 플럭스 - 중독성 있는 아케이드 게임
+
+### 향후 계획
+- **일일 게임 추가**: 매일 새로운 인기 게임 구현
+- **리더보드 시스템**: 전역 최고 점수 경쟁
+- **멀티플레이어**: 실시간 대전 기능
+- **게임 커스터마이징**: 테마, 난이도 설정
