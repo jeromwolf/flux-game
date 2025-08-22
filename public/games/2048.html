@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-i18n-title="games.2048.name">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,8 +46,8 @@
 <body>
     <div class="game-wrapper">
         <div class="game-header">
-            <h1>🔢 2048</h1>
-            <a href="../index.html" class="btn-secondary">메뉴로 돌아가기</a>
+            <h1>🔢 <span data-i18n="games.2048.name">2048</span></h1>
+            <a href="../index.html" class="btn-secondary" data-i18n="ui.back">메뉴로 돌아가기</a>
         </div>
         
         <div id="game-container" class="game-container">
@@ -58,6 +58,23 @@
     <script type="module">
         import { Game2048 } from '../js/games/puzzle/Game2048.js';
         import AdManager from '../js/common/monetization/AdManager.js';
+        import i18n from '../js/common/i18n/i18n.js';
+        import { LanguageSelector } from '../js/common/components/LanguageSelector.js';
+        
+        // i18n 초기화
+        await i18n.init();
+        
+        // 언어 선택기 추가
+        const langContainer = document.createElement('div');
+        langContainer.style.position = 'absolute';
+        langContainer.style.top = '1rem';
+        langContainer.style.right = '1rem';
+        langContainer.style.zIndex = '100';
+        document.querySelector('.game-header').appendChild(langContainer);
+        new LanguageSelector(langContainer);
+        
+        // 페이지 번역 업데이트
+        i18n.updatePageTranslations();
         
         // 광고 시스템 초기화
         AdManager.init();

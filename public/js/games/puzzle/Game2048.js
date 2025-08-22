@@ -1,5 +1,6 @@
 import { EnhancedBaseGame } from '../../core/EnhancedBaseGame.js';
 import SoundManager from '../../common/utils/SoundManager.js';
+import i18n from '../../common/i18n/i18n.js';
 
 export class Game2048 extends EnhancedBaseGame {
     constructor() {
@@ -119,25 +120,25 @@ export class Game2048 extends EnhancedBaseGame {
             <div class="game2048-wrapper">
                 <div class="game2048-header">
                     <div class="game-title">
-                        <h1>2048</h1>
-                        <p class="game-subtitle">타일을 합쳐 2048을 만드세요!</p>
+                        <h1 data-i18n="games.2048.name">2048</h1>
+                        <p class="game-subtitle" data-i18n="games.2048.description">타일을 합쳐 2048을 만드세요!</p>
                     </div>
                     <div class="scores-container">
                         <div class="score-box current-score">
-                            <div class="score-label">점수</div>
+                            <div class="score-label" data-i18n="ui.score">점수</div>
                             <div class="score-value" id="current-score">0</div>
                             <div class="score-add" id="score-add"></div>
                         </div>
                         <div class="score-box best-score">
-                            <div class="score-label">최고기록</div>
+                            <div class="score-label" data-i18n="ui.highScore">최고기록</div>
                             <div class="score-value" id="best-score">${this.bestScore}</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="game-controls">
-                    <button class="btn-primary" id="new-game-btn">새 게임</button>
-                    <button class="btn-secondary" id="undo-btn">되돌리기</button>
+                    <button class="btn-primary" id="new-game-btn" data-i18n="ui.newGame">새 게임</button>
+                    <button class="btn-secondary" id="undo-btn" data-i18n="ui.undo">되돌리기</button>
                 </div>
                 
                 <div class="game-board-container">
@@ -153,8 +154,8 @@ export class Game2048 extends EnhancedBaseGame {
                 <div class="game-message" id="game-message"></div>
                 
                 <div class="game-instructions">
-                    <p><strong>조작법:</strong> 화살표 키 또는 스와이프로 타일을 이동하세요</p>
-                    <p><strong>목표:</strong> 같은 숫자를 합쳐 2048을 만드세요!</p>
+                    <p><strong data-i18n="ui.controls">조작법:</strong> <span data-i18n="games.2048.instructions.controls">화살표 키 또는 스와이프로 타일을 이동하세요</span></p>
+                    <p><strong data-i18n="ui.goal">목표:</strong> <span data-i18n="games.2048.instructions.goal">같은 숫자를 합쳐 2048을 만드세요!</span></p>
                 </div>
             </div>
         `;
@@ -173,6 +174,9 @@ export class Game2048 extends EnhancedBaseGame {
         setTimeout(() => {
             SoundManager.addButtonSounds(this.container);
         }, 100);
+        
+        // i18n 업데이트
+        i18n.updatePageTranslations();
     }
 
     bindEvents() {
@@ -502,7 +506,7 @@ export class Game2048 extends EnhancedBaseGame {
     }
     
     showCombo() {
-        this.comboIndicator.textContent = `${this.combo}x 콤보!`;
+        this.comboIndicator.textContent = i18n.t('games.2048.combo', { count: this.combo });
         this.comboIndicator.classList.remove('hidden');
         
         setTimeout(() => {
@@ -611,11 +615,11 @@ export class Game2048 extends EnhancedBaseGame {
     showWinMessage() {
         this.messageElement.innerHTML = `
             <div class="message-content win">
-                <h2>축하합니다!</h2>
-                <p>2048을 만들었습니다!</p>
+                <h2>${i18n.t('games.2048.winMessage.title')}</h2>
+                <p>${i18n.t('games.2048.winMessage.subtitle')}</p>
                 <div class="message-buttons">
-                    <button class="btn-primary" onclick="document.querySelector('.game-message').style.display='none';window.game2048.continueAfterWin=true;">계속하기</button>
-                    <button class="btn-secondary" onclick="window.game2048.init();">새 게임</button>
+                    <button class="btn-primary" onclick="document.querySelector('.game-message').style.display='none';window.game2048.continueAfterWin=true;">${i18n.t('ui.continue')}</button>
+                    <button class="btn-secondary" onclick="window.game2048.init();">${i18n.t('ui.newGame')}</button>
                 </div>
             </div>
         `;
@@ -626,9 +630,9 @@ export class Game2048 extends EnhancedBaseGame {
     showGameOverMessage() {
         this.messageElement.innerHTML = `
             <div class="message-content lose">
-                <h2>게임 오버!</h2>
-                <p>최종 점수: ${this.score}</p>
-                <button class="btn-primary" onclick="window.game2048.init();">새 게임</button>
+                <h2>${i18n.t('ui.gameOver')}</h2>
+                <p>${i18n.t('games.2048.finalScore', { score: this.score })}</p>
+                <button class="btn-primary" onclick="window.game2048.init();">${i18n.t('ui.newGame')}</button>
             </div>
         `;
         this.messageElement.style.display = 'flex';

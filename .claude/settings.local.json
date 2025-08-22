@@ -15,7 +15,17 @@
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
       "Bash(git push:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:zeta-ai.io)",
+      "Bash(pkill:*)",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(./dev.sh)",
+      "Bash(npm run build:*)",
+      "Bash(./stop.sh)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(kill:*)",
+      "Bash(git reset:*)"
     ],
     "deny": []
   }

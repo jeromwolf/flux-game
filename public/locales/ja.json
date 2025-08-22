@@ -1,0 +1,195 @@
+{
+  "app": {
+    "title": "Flux Game - 地下鉄で楽しめるゲーム集",
+    "subtitle": "Kellyのためのモバイルゲームコレクション",
+    "categories": {
+      "all": "全てのゲーム",
+      "casual": "カジュアル",
+      "puzzle": "パズル",
+      "action": "アクション",
+      "arcade": "アーケード",
+      "strategy": "戦略"
+    }
+  },
+  "games": {
+    "cookieClicker": {
+      "name": "クッキークリッカー",
+      "description": "クッキーをクリックしてスコアを上げる中毒性ゲーム"
+    },
+    "fluxJump": {
+      "name": "フラックスジャンプ",
+      "description": "障害物を避けて走り続けるランニングゲーム"
+    },
+    "mysteryBox": {
+      "name": "ミステリーボックス",
+      "description": "箱を開けて隠された報酬を見つけるゲーム"
+    },
+    "2048": {
+      "name": "2048",
+      "description": "タイルを合わせて2048を作る数字パズル"
+    },
+    "tetris": {
+      "name": "テトリス",
+      "description": "ブロックを積んでラインを完成させるクラシックゲーム"
+    },
+    "minesweeper": {
+      "name": "マインスイーパー",
+      "description": "地雷を避けて全てのマスを開く論理ゲーム"
+    },
+    "snake": {
+      "name": "スネーク",
+      "description": "餌を食べて成長するヘビゲーム"
+    },
+    "breakout": {
+      "name": "ブレイクアウト",
+      "description": "ボールを弾いてブロックを壊すアーケードゲーム"
+    },
+    "bubbleShooter": {
+      "name": "バブルシューター",
+      "description": "同じ色のバブルを当てて消すシューティングゲーム"
+    },
+    "ticTacToe": {
+      "name": "三目並べ",
+      "description": "3つ並べる戦略ボードゲーム"
+    }
+  },
+  "ui": {
+    "playNow": "今すぐプレイ",
+    "play": "プレイ",
+    "pause": "一時停止",
+    "resume": "再開",
+    "restart": "リスタート",
+    "quit": "終了",
+    "undo": "元に戻す",
+    "controls": "操作方法",
+    "goal": "目標",
+    "menu": "メニュー",
+    "back": "戻る",
+    "next": "次へ",
+    "skip": "スキップ",
+    "loading": "読み込み中...",
+    "score": "スコア",
+    "highScore": "ハイスコア",
+    "level": "レベル",
+    "time": "時間",
+    "moves": "手数",
+    "gameOver": "ゲームオーバー",
+    "victory": "勝利！",
+    "newGame": "新しいゲーム",
+    "continue": "続ける",
+    "settings": "設定",
+    "sound": "サウンド",
+    "music": "音楽",
+    "language": "言語",
+    "difficulty": {
+      "easy": "かんたん",
+      "medium": "ふつう",
+      "hard": "むずかしい",
+      "expert": "エキスパート"
+    }
+  },
+  "messages": {
+    "welcome": "Flux Gameへようこそ！",
+    "selectGame": "プレイするゲームを選んでください",
+    "newHighScore": "新記録！",
+    "tryAgain": "もう一度挑戦！",
+    "wellDone": "よくできました！",
+    "awesome": "すごい！",
+    "incredible": "信じられない！",
+    "amazing": "素晴らしい！",
+    "paused": "一時停止中",
+    "pressToStart": "タップしてスタート",
+    "tapToContinue": "タップして続ける",
+    "loading": "ゲームを読み込んでいます...",
+    "networkError": "ネットワークエラーが発生しました",
+    "adLoading": "広告を読み込んでいます...",
+    "watchAdToContinue": "続けるには広告を見てください",
+    "rewardEarned": "報酬を獲得しました！"
+  },
+  "cookieClicker": {
+    "cookie": "クッキー",
+    "cookies": "クッキー",
+    "perSecond": "毎秒",
+    "upgrades": "アップグレード",
+    "achievements": "実績",
+    "bakery": "ベーカリー",
+    "farm": "農場",
+    "mine": "鉱山",
+    "factory": "工場",
+    "bank": "銀行",
+    "temple": "寺院",
+    "wizardTower": "魔法使いの塔",
+    "shipment": "輸送船",
+    "alchemyLab": "錬金術ラボ",
+    "portal": "ポータル",
+    "timeMachine": "タイムマシン",
+    "antimatterCondenser": "反物質凝縮器"
+  },
+  "2048": {
+    "instructions": {
+      "controls": "矢印キーまたはスワイプでタイルを移動",
+      "goal": "同じ数字を合わせて2048を作ろう！"
+    },
+    "combo": "{{count}}x コンボ！",
+    "congratulations": "おめでとう！",
+    "youCreated2048": "2048を作りました！",
+    "finalScore": "最終スコア: {{score}}",
+    "winMessage": {
+      "title": "おめでとう！",
+      "subtitle": "2048を作りました！"
+    }
+  },
+  "tetris": {
+    "lines": "ライン",
+    "level": "レベル",
+    "next": "次",
+    "hold": "ホールド",
+    "controls": {
+      "left": "左",
+      "right": "右",
+      "rotate": "回転",
+      "drop": "落下",
+      "hold": "ホールド"
+    }
+  },
+  "minesweeper": {
+    "mines": "地雷",
+    "flags": "旗",
+    "time": "時間",
+    "revealed": "開いた",
+    "flagged": "マーク済み",
+    "exploded": "爆発！",
+    "cleared": "クリア！"
+  },
+  "snake": {
+    "length": "長さ",
+    "speed": "速度",
+    "powerUps": {
+      "speed": "スピードアップ",
+      "slow": "スローダウン",
+      "invincible": "無敵",
+      "bonus": "ボーナススコア"
+    }
+  },
+  "bubbleShooter": {
+    "bubbles": "バブル",
+    "combo": "コンボ",
+    "aim": "狙う",
+    "shoot": "発射",
+    "noMoreMoves": "これ以上動けません"
+  },
+  "ads": {
+    "banner": "バナー広告",
+    "interstitial": "インタースティシャル広告",
+    "rewarded": "リワード広告",
+    "close": "閉じる",
+    "skipIn": "{{seconds}}秒後にスキップ",
+    "watchToEarn": "広告を見て報酬を獲得"
+  },
+  "errors": {
+    "gameLoadFailed": "ゲームの読み込みに失敗しました",
+    "connectionLost": "接続が切断されました",
+    "adBlockDetected": "広告ブロッカーが検出されました",
+    "notSupported": "このブラウザではサポートされていません"
+  }
+}

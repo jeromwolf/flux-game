@@ -1,0 +1,195 @@
+{
+  "app": {
+    "title": "Flux Game - Games to Play on the Subway",
+    "subtitle": "Mobile Game Collection for Kelly",
+    "categories": {
+      "all": "All Games",
+      "casual": "Casual",
+      "puzzle": "Puzzle",
+      "action": "Action",
+      "arcade": "Arcade",
+      "strategy": "Strategy"
+    }
+  },
+  "games": {
+    "cookieClicker": {
+      "name": "Cookie Clicker",
+      "description": "Addictive game where you click cookies to score"
+    },
+    "fluxJump": {
+      "name": "Flux Jump",
+      "description": "Endless runner avoiding obstacles"
+    },
+    "mysteryBox": {
+      "name": "Mystery Box",
+      "description": "Open boxes to find hidden rewards"
+    },
+    "2048": {
+      "name": "2048",
+      "description": "Number puzzle merging tiles to reach 2048"
+    },
+    "tetris": {
+      "name": "Tetris",
+      "description": "Classic game stacking blocks to complete lines"
+    },
+    "minesweeper": {
+      "name": "Minesweeper",
+      "description": "Logic game revealing all squares while avoiding mines"
+    },
+    "snake": {
+      "name": "Snake",
+      "description": "Snake game eating food and growing"
+    },
+    "breakout": {
+      "name": "Breakout",
+      "description": "Arcade game bouncing ball to break blocks"
+    },
+    "bubbleShooter": {
+      "name": "Bubble Shooter",
+      "description": "Shooting game matching colored bubbles"
+    },
+    "ticTacToe": {
+      "name": "Tic Tac Toe",
+      "description": "Strategic board game making three in a row"
+    }
+  },
+  "ui": {
+    "playNow": "Play Now",
+    "play": "Play",
+    "pause": "Pause",
+    "resume": "Resume",
+    "restart": "Restart",
+    "quit": "Quit",
+    "undo": "Undo",
+    "controls": "Controls",
+    "goal": "Goal",
+    "menu": "Menu",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "loading": "Loading...",
+    "score": "Score",
+    "highScore": "High Score",
+    "level": "Level",
+    "time": "Time",
+    "moves": "Moves",
+    "gameOver": "Game Over",
+    "victory": "Victory!",
+    "newGame": "New Game",
+    "continue": "Continue",
+    "settings": "Settings",
+    "sound": "Sound",
+    "music": "Music",
+    "language": "Language",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "expert": "Expert"
+    }
+  },
+  "messages": {
+    "welcome": "Welcome to Flux Game!",
+    "selectGame": "Select a game to play",
+    "newHighScore": "New High Score!",
+    "tryAgain": "Try Again!",
+    "wellDone": "Well Done!",
+    "awesome": "Awesome!",
+    "incredible": "Incredible!",
+    "amazing": "Amazing!",
+    "paused": "Paused",
+    "pressToStart": "Tap to Start",
+    "tapToContinue": "Tap to Continue",
+    "loading": "Loading game...",
+    "networkError": "Network error occurred",
+    "adLoading": "Loading ad...",
+    "watchAdToContinue": "Watch ad to continue",
+    "rewardEarned": "Reward earned!"
+  },
+  "cookieClicker": {
+    "cookie": "Cookie",
+    "cookies": "Cookies",
+    "perSecond": "per second",
+    "upgrades": "Upgrades",
+    "achievements": "Achievements",
+    "bakery": "Bakery",
+    "farm": "Farm",
+    "mine": "Mine",
+    "factory": "Factory",
+    "bank": "Bank",
+    "temple": "Temple",
+    "wizardTower": "Wizard Tower",
+    "shipment": "Shipment",
+    "alchemyLab": "Alchemy Lab",
+    "portal": "Portal",
+    "timeMachine": "Time Machine",
+    "antimatterCondenser": "Antimatter Condenser"
+  },
+  "2048": {
+    "instructions": {
+      "controls": "Use arrow keys or swipe to move tiles",
+      "goal": "Merge the same numbers to create 2048!"
+    },
+    "combo": "{{count}}x Combo!",
+    "congratulations": "Congratulations!",
+    "youCreated2048": "You created 2048!",
+    "finalScore": "Final Score: {{score}}",
+    "winMessage": {
+      "title": "Congratulations!",
+      "subtitle": "You created 2048!"
+    }
+  },
+  "tetris": {
+    "lines": "Lines",
+    "level": "Level",
+    "next": "Next",
+    "hold": "Hold",
+    "controls": {
+      "left": "Left",
+      "right": "Right",
+      "rotate": "Rotate",
+      "drop": "Drop",
+      "hold": "Hold"
+    }
+  },
+  "minesweeper": {
+    "mines": "Mines",
+    "flags": "Flags",
+    "time": "Time",
+    "revealed": "Revealed",
+    "flagged": "Flagged",
+    "exploded": "Exploded!",
+    "cleared": "Cleared!"
+  },
+  "snake": {
+    "length": "Length",
+    "speed": "Speed",
+    "powerUps": {
+      "speed": "Speed Boost",
+      "slow": "Slow Down",
+      "invincible": "Invincible",
+      "bonus": "Bonus Score"
+    }
+  },
+  "bubbleShooter": {
+    "bubbles": "Bubbles",
+    "combo": "Combo",
+    "aim": "Aim",
+    "shoot": "Shoot",
+    "noMoreMoves": "No more moves"
+  },
+  "ads": {
+    "banner": "Banner Ad",
+    "interstitial": "Interstitial Ad",
+    "rewarded": "Rewarded Ad",
+    "close": "Close",
+    "skipIn": "Skip in {{seconds}}s",
+    "watchToEarn": "Watch ad to earn rewards"
+  },
+  "errors": {
+    "gameLoadFailed": "Failed to load game",
+    "connectionLost": "Connection lost",
+    "adBlockDetected": "Ad blocker detected",
+    "notSupported": "Not supported in this browser"
+  }
+}

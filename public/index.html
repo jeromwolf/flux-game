@@ -1,16 +1,57 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-i18n-title="app.title">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎮 Flux Game - 지하철 게임 꾸러미</title>
     <link rel="stylesheet" href="css/style.css">
+    <script type="module">
+        import i18n from './js/common/i18n/i18n.js';
+        import { LanguageSelector } from './js/common/components/LanguageSelector.js';
+        
+        // Wait for i18n to initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await i18n.init();
+                
+                // Create language selector
+                const langContainer = document.createElement('div');
+                langContainer.id = 'language-selector-container';
+                document.body.appendChild(langContainer);
+                new LanguageSelector(langContainer);
+                
+                // Update page translations
+                i18n.updatePageTranslations();
+            } catch (error) {
+                console.error('Error initializing i18n:', error);
+            }
+        });
+    </script>
+    <style>
+        #language-selector-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            #language-selector-container {
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🚇 지하철 게임 꾸러미</h1>
-            <p>Kelly의 간단한 게임 모음</p>
+            <h1 data-i18n="app.title">🚇 지하철 게임 꾸러미</h1>
+            <p data-i18n="app.subtitle">Kelly의 간단한 게임 모음</p>
         </header>
 
         <main>
@@ -18,80 +59,80 @@
                 <a href="games/mysterybox.html" class="game-btn">
                     <span class="game-icon">📦</span>
                     <div>
-                        <h3>미스터리 박스</h3>
-                        <p>무엇이 들어있을까? 호기심 주의!</p>
+                        <h3 data-i18n="games.mysteryBox.name">미스터리 박스</h3>
+                        <p data-i18n="games.mysteryBox.description">무엇이 들어있을까? 호기심 주의!</p>
                     </div>
                 </a>
                 
                 <a href="games/cookieclicker.html" class="game-btn">
                     <span class="game-icon">🍪</span>
                     <div>
-                        <h3>쿠키 클리커</h3>
-                        <p>쿠키를 클릭해서 부자되기!</p>
+                        <h3 data-i18n="games.cookieClicker.name">쿠키 클리커</h3>
+                        <p data-i18n="games.cookieClicker.description">쿠키를 클릭해서 부자되기!</p>
                     </div>
                 </a>
                 
                 <a href="games/fluxjump.html" class="game-btn">
                     <span class="game-icon">🦘</span>
                     <div>
-                        <h3>플럭스 점프</h3>
-                        <p>장애물을 피해 점프!</p>
+                        <h3 data-i18n="games.fluxJump.name">플럭스 점프</h3>
+                        <p data-i18n="games.fluxJump.description">장애물을 피해 점프!</p>
                     </div>
                 </a>
                 
                 <a href="games/tictactoe.html" class="game-btn">
                     <span class="game-icon">⭕</span>
                     <div>
-                        <h3>틱택토</h3>
-                        <p>3x3 격자에서 한 줄 만들기</p>
+                        <h3 data-i18n="games.ticTacToe.name">틱택토</h3>
+                        <p data-i18n="games.ticTacToe.description">3x3 격자에서 한 줄 만들기</p>
                     </div>
                 </a>
                 
                 <a href="games/snake.html" class="game-btn">
                     <span class="game-icon">🐍</span>
                     <div>
-                        <h3>스네이크</h3>
-                        <p>뱀을 조종해서 먹이 먹기</p>
+                        <h3 data-i18n="games.snake.name">스네이크</h3>
+                        <p data-i18n="games.snake.description">뱀을 조종해서 먹이 먹기</p>
                     </div>
                 </a>
                 
                 <a href="games/tetris.html" class="game-btn">
                     <span class="game-icon">🧱</span>
                     <div>
-                        <h3>테트리스</h3>
-                        <p>블록을 쌓아 줄 없애기</p>
+                        <h3 data-i18n="games.tetris.name">테트리스</h3>
+                        <p data-i18n="games.tetris.description">블록을 쌓아 줄 없애기</p>
                     </div>
                 </a>
                 
                 <a href="games/2048.html" class="game-btn">
                     <span class="game-icon">🔢</span>
                     <div>
-                        <h3>2048</h3>
-                        <p>숫자 타일 합치기</p>
+                        <h3 data-i18n="games.2048.name">2048</h3>
+                        <p data-i18n="games.2048.description">숫자 타일 합치기</p>
                     </div>
                 </a>
                 
                 <a href="games/minesweeper.html" class="game-btn">
                     <span class="game-icon">💣</span>
                     <div>
-                        <h3>지뢰찾기</h3>
-                        <p>숨겨진 지뢰 피하기</p>
+                        <h3 data-i18n="games.minesweeper.name">지뢰찾기</h3>
+                        <p data-i18n="games.minesweeper.description">숨겨진 지뢰 피하기</p>
                     </div>
                 </a>
                 
                 <a href="games/breakout.html" class="game-btn">
                     <span class="game-icon">🎾</span>
                     <div>
-                        <h3>브레이크아웃</h3>
-                        <p>공으로 벽돌 깨기</p>
+                        <h3 data-i18n="games.breakout.name">브레이크아웃</h3>
+                        <p data-i18n="games.breakout.description">공으로 벽돌 깨기</p>
                     </div>
                 </a>
                 
                 <a href="games/bubble-shooter.html" class="game-btn">
                     <span class="game-icon">🎯</span>
                     <div>
-                        <h3>버블 슈터</h3>
-                        <p>같은 색깔 버블 3개 이상 연결해서 터뜨리기</p>
+                        <h3 data-i18n="games.bubbleShooter.name">버블 슈터</h3>
+                        <p data-i18n="games.bubbleShooter.description">같은 색깔 버블 3개 이상 연결해서 터뜨리기</p>
                     </div>
                 </a>
             </div>

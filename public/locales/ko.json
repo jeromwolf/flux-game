@@ -1,0 +1,195 @@
+{
+  "app": {
+    "title": "Flux Game - 지하철에서 즐기는 게임 꾸러미",
+    "subtitle": "Kelly를 위한 모바일 게임 컬렉션",
+    "categories": {
+      "all": "전체 게임",
+      "casual": "캐주얼",
+      "puzzle": "퍼즐",
+      "action": "액션",
+      "arcade": "아케이드",
+      "strategy": "전략"
+    }
+  },
+  "games": {
+    "cookieClicker": {
+      "name": "쿠키 클리커",
+      "description": "쿠키를 클릭하여 점수를 올리는 중독성 게임"
+    },
+    "fluxJump": {
+      "name": "플럭스 점프",
+      "description": "장애물을 피해 끝없이 달리는 러닝 게임"
+    },
+    "mysteryBox": {
+      "name": "미스터리 박스",
+      "description": "상자를 열어 숨겨진 보상을 찾는 호기심 게임"
+    },
+    "2048": {
+      "name": "2048",
+      "description": "타일을 합쳐 2048을 만드는 숫자 퍼즐"
+    },
+    "tetris": {
+      "name": "테트리스",
+      "description": "블록을 쌓아 줄을 완성하는 클래식 게임"
+    },
+    "minesweeper": {
+      "name": "지뢰찾기",
+      "description": "지뢰를 피해 모든 칸을 여는 논리 게임"
+    },
+    "snake": {
+      "name": "스네이크",
+      "description": "먹이를 먹고 성장하는 뱀 게임"
+    },
+    "breakout": {
+      "name": "브레이크아웃",
+      "description": "공을 튕겨 블록을 깨는 아케이드 게임"
+    },
+    "bubbleShooter": {
+      "name": "버블 슈터",
+      "description": "같은 색 버블을 맞춰 터뜨리는 슈팅 게임"
+    },
+    "ticTacToe": {
+      "name": "틱택토",
+      "description": "3목을 만드는 전략 보드 게임"
+    }
+  },
+  "ui": {
+    "playNow": "지금 플레이",
+    "play": "플레이",
+    "pause": "일시정지",
+    "resume": "계속하기",
+    "restart": "다시 시작",
+    "quit": "나가기",
+    "undo": "되돌리기",
+    "controls": "조작법",
+    "goal": "목표",
+    "menu": "메뉴",
+    "back": "뒤로",
+    "next": "다음",
+    "skip": "건너뛰기",
+    "loading": "로딩 중...",
+    "score": "점수",
+    "highScore": "최고 점수",
+    "level": "레벨",
+    "time": "시간",
+    "moves": "이동",
+    "gameOver": "게임 오버",
+    "victory": "승리!",
+    "newGame": "새 게임",
+    "continue": "계속하기",
+    "settings": "설정",
+    "sound": "사운드",
+    "music": "음악",
+    "language": "언어",
+    "difficulty": {
+      "easy": "쉬움",
+      "medium": "보통",
+      "hard": "어려움",
+      "expert": "전문가"
+    }
+  },
+  "messages": {
+    "welcome": "Flux Game에 오신 것을 환영합니다!",
+    "selectGame": "플레이할 게임을 선택하세요",
+    "newHighScore": "새로운 최고 기록!",
+    "tryAgain": "다시 도전해보세요!",
+    "wellDone": "잘했어요!",
+    "awesome": "대단해요!",
+    "incredible": "놀라워요!",
+    "amazing": "환상적이에요!",
+    "paused": "일시정지됨",
+    "pressToStart": "시작하려면 탭하세요",
+    "tapToContinue": "계속하려면 탭하세요",
+    "loading": "게임을 불러오는 중...",
+    "networkError": "네트워크 오류가 발생했습니다",
+    "adLoading": "광고를 불러오는 중...",
+    "watchAdToContinue": "계속하려면 광고를 시청하세요",
+    "rewardEarned": "보상을 획득했습니다!"
+  },
+  "cookieClicker": {
+    "cookie": "쿠키",
+    "cookies": "쿠키",
+    "perSecond": "초당",
+    "upgrades": "업그레이드",
+    "achievements": "업적",
+    "bakery": "제과점",
+    "farm": "농장",
+    "mine": "광산",
+    "factory": "공장",
+    "bank": "은행",
+    "temple": "사원",
+    "wizardTower": "마법사 탑",
+    "shipment": "운송선",
+    "alchemyLab": "연금술 연구소",
+    "portal": "포털",
+    "timeMachine": "타임머신",
+    "antimatterCondenser": "반물질 응축기"
+  },
+  "2048": {
+    "instructions": {
+      "controls": "화살표 키 또는 스와이프로 타일을 이동하세요",
+      "goal": "같은 숫자를 합쳐 2048을 만드세요!"
+    },
+    "combo": "{{count}}x 콤보!",
+    "congratulations": "축하합니다!",
+    "youCreated2048": "2048을 만들었습니다!",
+    "finalScore": "최종 점수: {{score}}",
+    "winMessage": {
+      "title": "축하합니다!",
+      "subtitle": "2048을 만들었습니다!"
+    }
+  },
+  "tetris": {
+    "lines": "라인",
+    "level": "레벨",
+    "next": "다음",
+    "hold": "홀드",
+    "controls": {
+      "left": "왼쪽",
+      "right": "오른쪽",
+      "rotate": "회전",
+      "drop": "떨어뜨리기",
+      "hold": "홀드"
+    }
+  },
+  "minesweeper": {
+    "mines": "지뢰",
+    "flags": "깃발",
+    "time": "시간",
+    "revealed": "공개됨",
+    "flagged": "표시됨",
+    "exploded": "폭발!",
+    "cleared": "클리어!"
+  },
+  "snake": {
+    "length": "길이",
+    "speed": "속도",
+    "powerUps": {
+      "speed": "속도 증가",
+      "slow": "속도 감소",
+      "invincible": "무적",
+      "bonus": "보너스 점수"
+    }
+  },
+  "bubbleShooter": {
+    "bubbles": "버블",
+    "combo": "콤보",
+    "aim": "조준",
+    "shoot": "발사",
+    "noMoreMoves": "더 이상 움직일 수 없습니다"
+  },
+  "ads": {
+    "banner": "배너 광고",
+    "interstitial": "전면 광고",
+    "rewarded": "보상형 광고",
+    "close": "닫기",
+    "skipIn": "{{seconds}}초 후 건너뛰기",
+    "watchToEarn": "광고를 시청하고 보상을 받으세요"
+  },
+  "errors": {
+    "gameLoadFailed": "게임을 불러올 수 없습니다",
+    "connectionLost": "연결이 끊어졌습니다",
+    "adBlockDetected": "광고 차단기가 감지되었습니다",
+    "notSupported": "이 브라우저에서는 지원되지 않습니다"
+  }
+}
