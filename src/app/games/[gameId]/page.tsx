@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { gameAnalytics } from '@/lib/analytics/GameAnalytics';
+import { gameAnalyticsV2 } from '@/lib/analytics/GameAnalyticsV2';
 
 export default function GamePage() {
   const params = useParams();
@@ -11,11 +11,21 @@ export default function GamePage() {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
   const gameId = params.gameId as string;
 
   useEffect(() => {
     // 게임 방문 기록
-    gameAnalytics.recordGameVisit(gameId);
+    gameAnalyticsV2.recordGameVisit(gameId);
+    
+    // Load analytics
+    const updateAnalytics = () => {
+      const stats = gameAnalyticsV2.getGameStatsSummary(gameId);
+      setAnalytics(stats);
+    };
+    
+    updateAnalytics();
+    const interval = setInterval(updateAnalytics, 5000); // Update every 5 seconds
     
     const loadGame = async () => {
       try {
@@ -55,6 +65,12 @@ export default function GamePage() {
           case 'flappy-flux':
             GameModule = await import('@/lib/games/FlappyFlux');
             break;
+          case 'dino-run':
+            GameModule = await import('@/lib/games/DinoRunFixed');
+            break;
+          case 'word-tower':
+            GameModule = await import('@/lib/games/WordTower');
+            break;
           default:
             throw new Error(`Game ${gameId} not found`);
         }
@@ -70,11 +86,13 @@ export default function GamePage() {
         // 클린업 함수
         return () => {
           // 게임 세션 종료 기록
-          gameAnalytics.endGameSession(gameId);
+          gameAnalyticsV2.endGameSession(gameId);
           
           if (game.unmount) {
             game.unmount();
           }
+          
+          clearInterval(interval);
         };
       } catch (err) {
         console.error('Failed to load game:', err);
@@ -109,19 +127,45 @@ export default function GamePage() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       <header className="bg-gray-900 border-b border-gray-800">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">
-            {gameId.charAt(0).toUpperCase() + gameId.slice(1).replace(/-/g, ' ')}
-          </h1>
-          <Link
-            href="/"
-            className="text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Games
-          </Link>
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-2xl font-bold text-white">
+              {gameId.charAt(0).toUpperCase() + gameId.slice(1).replace(/-/g, ' ')}
+            </h1>
+            <Link
+              href="/"
+              className="text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Games
+            </Link>
+          </div>
+          
+          {analytics && (
+            <div className="flex flex-wrap gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">오늘 방문:</span>
+                <span className="text-cyan-400 font-semibold">{analytics.todayVisits}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">전체 방문:</span>
+                <span className="text-purple-500 font-semibold">{analytics.totalVisits}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">평균 플레이:</span>
+                <span className="text-green-400 font-semibold">{analytics.averageSessionTime}</span>
+              </div>
+              {analytics.trendingStatus && (
+                <div className="flex items-center">
+                  {analytics.trendingStatus === 'hot' && <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded">🔥 HOT</span>}
+                  {analytics.trendingStatus === 'rising' && <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded">📈 RISING</span>}
+                  {analytics.trendingStatus === 'new' && <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded">✨ NEW</span>}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </header>
 

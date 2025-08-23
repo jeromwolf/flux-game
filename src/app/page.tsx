@@ -1,6 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import ThemeSelector from '@/components/ui/ThemeSelector';
+import { gameAnalyticsV2 } from '@/lib/analytics/GameAnalyticsV2';
 
 // 게임 데이터
 const games = [
@@ -84,9 +87,68 @@ const games = [
     category: 'arcade',
     status: 'available',
   },
+  {
+    id: 'dino-run',
+    name: '다이노 런',
+    description: '공룡과 함께 달리기!',
+    icon: '🦖',
+    category: 'action',
+    status: 'available',
+  },
+  {
+    id: 'word-tower',
+    name: '워드 타워',
+    description: '단어로 탑을 쌓아보세요!',
+    icon: '📚',
+    category: 'puzzle',
+    status: 'available',
+  },
 ];
 
 export default function Home() {
+  const [sortedGames, setSortedGames] = useState(games);
+  const [visitStats, setVisitStats] = useState<{[key: string]: {today: number, total: number}}>({});
+  const [globalStats, setGlobalStats] = useState({ todayVisits: 0, totalVisits: 0 });
+
+  useEffect(() => {
+    // Load analytics data
+    const loadAnalytics = () => {
+      const popularGames = gameAnalyticsV2.getGamesByPopularity();
+      const allStats = gameAnalyticsV2.getAllStats();
+      const global = gameAnalyticsV2.getGlobalStats();
+      
+      // Create visit stats map
+      const stats: {[key: string]: {today: number, total: number}} = {};
+      Object.values(allStats).forEach(stat => {
+        stats[stat.gameId] = {
+          today: stat.visitCountToday,
+          total: stat.visitCount
+        };
+      });
+      
+      setVisitStats(stats);
+      setGlobalStats(global);
+      
+      // Sort games by popularity
+      const sorted = [...games].sort((a, b) => {
+        const aIndex = popularGames.indexOf(a.id);
+        const bIndex = popularGames.indexOf(b.id);
+        if (aIndex === -1 && bIndex === -1) return 0;
+        if (aIndex === -1) return 1;
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+      });
+      
+      setSortedGames(sorted);
+    };
+
+    loadAnalytics();
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(loadAnalytics, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -100,6 +162,7 @@ export default function Home() {
             <div className="text-cyan-400 text-xs">AI GAMING</div>
           </div>
         </div>
+        <ThemeSelector />
       </nav>
 
       {/* Hero Section */}
@@ -112,9 +175,21 @@ export default function Home() {
         <p className="text-2xl text-gray-300 mb-4">
           Next-Gen Gaming Platform
         </p>
-        <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+        <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-8">
           Experience the future of gaming with AI-powered mechanics
         </p>
+        
+        {/* Global Stats */}
+        <div className="flex justify-center gap-8 mt-8">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg px-6 py-4">
+            <div className="text-3xl font-bold text-cyan-400">{globalStats.todayVisits}</div>
+            <div className="text-sm text-gray-400">오늘 방문</div>
+          </div>
+          <div className="bg-gray-900 border border-gray-800 rounded-lg px-6 py-4">
+            <div className="text-3xl font-bold text-purple-500">{globalStats.totalVisits}</div>
+            <div className="text-sm text-gray-400">전체 방문</div>
+          </div>
+        </div>
       </header>
 
       {/* Games Grid */}
@@ -123,7 +198,11 @@ export default function Home() {
           Available Games
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {games.map((game) => (
+          {sortedGames.map((game) => {
+            const stats = visitStats[game.id] || { today: 0, total: 0 };
+            const trending = gameAnalyticsV2.getTrendingStatus(game.id);
+            
+            return (
             <Link
               key={game.id}
               href={game.status === 'available' ? `/games/${game.id}` : '#'}
@@ -138,23 +217,35 @@ export default function Home() {
             >
               <div className="flex items-center gap-4 mb-4">
                 <span className="text-4xl">{game.icon}</span>
-                <div>
-                  <h3 className="text-xl font-bold text-white">{game.name}</h3>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-bold text-white">{game.name}</h3>
+                    {trending === 'hot' && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">🔥 HOT</span>}
+                    {trending === 'rising' && <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded">📈 RISING</span>}
+                    {trending === 'new' && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">✨ NEW</span>}
+                  </div>
                   {game.status !== 'available' && (
                     <span className="text-xs text-gray-500 uppercase">Coming Soon</span>
                   )}
                 </div>
               </div>
-              <p className="text-gray-400 text-sm">{game.description}</p>
+              <p className="text-gray-400 text-sm mb-3">{game.description}</p>
+              {game.status === 'available' && (
+                <div className="flex gap-4 text-xs text-gray-500">
+                  <span>오늘: {stats.today}</span>
+                  <span>전체: {stats.total}</span>
+                </div>
+              )}
             </Link>
-          ))}
+            );
+          })}
         </div>
       </main>
 
       {/* Footer */}
       <footer className="text-center py-12 mt-20 border-t border-gray-800">
         <p className="text-gray-500 text-sm">
-          © 2024 Flux AI. All rights reserved.
+          © 2025 Flux AI. All rights reserved.
         </p>
       </footer>
     </div>
