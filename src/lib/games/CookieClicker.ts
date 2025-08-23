@@ -346,10 +346,15 @@ export default class CookieClicker {
   }
 
   private updateDisplay() {
-    document.getElementById('cookie-count')!.textContent = `${this.formatNumber(this.cookies)} cookies`;
-    document.getElementById('cps')!.textContent = this.formatNumber(this.cookiesPerSecond);
-    document.getElementById('cpc')!.textContent = this.formatNumber(this.cookiesPerClick);
-    document.getElementById('total')!.textContent = this.formatNumber(this.totalCookies);
+    const cookieCount = document.getElementById('cookie-count');
+    const cps = document.getElementById('cps');
+    const cpc = document.getElementById('cpc');
+    const total = document.getElementById('total');
+    
+    if (cookieCount) cookieCount.textContent = `${this.formatNumber(this.cookies)} cookies`;
+    if (cps) cps.textContent = this.formatNumber(this.cookiesPerSecond);
+    if (cpc) cpc.textContent = this.formatNumber(this.cookiesPerClick);
+    if (total) total.textContent = this.formatNumber(this.totalCookies);
   }
 
   private formatNumber(num: number): string {

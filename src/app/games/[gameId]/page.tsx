@@ -9,14 +9,18 @@ export default function GamePage() {
   const params = useParams();
   const router = useRouter();
   const gameContainerRef = useRef<HTMLDivElement>(null);
+  const hasRecordedVisit = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<any>(null);
   const gameId = params.gameId as string;
 
   useEffect(() => {
-    // 게임 방문 기록
-    gameAnalyticsV2.recordGameVisit(gameId);
+    // 게임 방문 기록 (useRef로 한 번만 실행)
+    if (!hasRecordedVisit.current) {
+      gameAnalyticsV2.recordGameVisit(gameId);
+      hasRecordedVisit.current = true;
+    }
     
     // Load analytics
     const updateAnalytics = () => {

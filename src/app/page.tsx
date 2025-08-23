@@ -109,6 +109,7 @@ export default function Home() {
   const [sortedGames, setSortedGames] = useState(games);
   const [visitStats, setVisitStats] = useState<{[key: string]: {today: number, total: number}}>({});
   const [globalStats, setGlobalStats] = useState({ todayVisits: 0, totalVisits: 0 });
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     // Load analytics data
@@ -127,7 +128,10 @@ export default function Home() {
       });
       
       setVisitStats(stats);
-      setGlobalStats(global);
+      setGlobalStats({
+        todayVisits: global.totalVisitsToday,
+        totalVisits: global.totalVisitsAllTime
+      });
       
       // Sort games by popularity
       const sorted = [...games].sort((a, b) => {
@@ -140,6 +144,7 @@ export default function Home() {
       });
       
       setSortedGames(sorted);
+      setIsLoaded(true);
     };
 
     loadAnalytics();
@@ -181,12 +186,16 @@ export default function Home() {
         
         {/* Global Stats */}
         <div className="flex justify-center gap-8 mt-8">
-          <div className="bg-gray-900 border border-gray-800 rounded-lg px-6 py-4">
-            <div className="text-3xl font-bold text-cyan-400">{globalStats.todayVisits}</div>
+          <div className="bg-gray-900 border border-gray-800 rounded-lg px-6 py-4 min-w-[120px]">
+            <div className="text-3xl font-bold text-cyan-400 h-10 flex items-center justify-center">
+              {isLoaded ? globalStats.todayVisits : '0'}
+            </div>
             <div className="text-sm text-gray-400">오늘 방문</div>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-lg px-6 py-4">
-            <div className="text-3xl font-bold text-purple-500">{globalStats.totalVisits}</div>
+          <div className="bg-gray-900 border border-gray-800 rounded-lg px-6 py-4 min-w-[120px]">
+            <div className="text-3xl font-bold text-purple-500 h-10 flex items-center justify-center">
+              {isLoaded ? globalStats.totalVisits : '0'}
+            </div>
             <div className="text-sm text-gray-400">전체 방문</div>
           </div>
         </div>
@@ -200,7 +209,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {sortedGames.map((game) => {
             const stats = visitStats[game.id] || { today: 0, total: 0 };
-            const trending = gameAnalyticsV2.getTrendingStatus(game.id);
+            const trending = isLoaded ? gameAnalyticsV2.getTrendingStatus(game.id) : null;
             
             return (
             <Link
@@ -220,9 +229,9 @@ export default function Home() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-xl font-bold text-white">{game.name}</h3>
-                    {trending === 'hot' && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">🔥 HOT</span>}
-                    {trending === 'rising' && <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded">📈 RISING</span>}
-                    {trending === 'new' && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">✨ NEW</span>}
+                    {isLoaded && trending === 'hot' && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">🔥 HOT</span>}
+                    {isLoaded && trending === 'rising' && <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded">📈 RISING</span>}
+                    {isLoaded && trending === 'new' && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">✨ NEW</span>}
                   </div>
                   {game.status !== 'available' && (
                     <span className="text-xs text-gray-500 uppercase">Coming Soon</span>
@@ -230,7 +239,7 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-gray-400 text-sm mb-3">{game.description}</p>
-              {game.status === 'available' && (
+              {game.status === 'available' && isLoaded && (
                 <div className="flex gap-4 text-xs text-gray-500">
                   <span>오늘: {stats.today}</span>
                   <span>전체: {stats.total}</span>
