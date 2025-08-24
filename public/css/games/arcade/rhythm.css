@@ -1,0 +1,133 @@
+.game-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(26, 26, 46, 0.9);
+    border-radius: 10px;
+}
+
+.back-btn {
+    background: #e94560;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.back-btn:hover {
+    background: #c73650;
+}
+
+.game-content {
+    display: flex;
+    gap: 20px;
+}
+
+.game-info {
+    flex: 1;
+    background: rgba(26, 26, 46, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.game-info h2 {
+    color: #e94560;
+    margin-bottom: 15px;
+}
+
+.controls {
+    background: rgba(15, 52, 96, 0.5);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.controls p {
+    margin: 5px 0;
+    color: #fff;
+}
+
+.instructions {
+    background: rgba(22, 33, 62, 0.5);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.instructions p {
+    margin: 5px 0;
+    color: #ccc;
+}
+
+.start-btn {
+    width: 100%;
+    background: #00ff88;
+    color: #1a1a2e;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.start-btn:hover {
+    background: #00cc66;
+    transform: scale(1.05);
+}
+
+.game-canvas-wrapper {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(26, 26, 46, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#gameCanvas {
+    border: 2px solid #e94560;
+    border-radius: 5px;
+    background: #1a1a2e;
+}
+
+.game-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.score {
+    font-size: 20px;
+    color: #00ff88;
+    font-weight: bold;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .game-content {
+        flex-direction: column;
+    }
+    
+    .game-canvas-wrapper {
+        order: -1;
+    }
+    
+    #gameCanvas {
+        max-width: 100%;
+        height: auto;
+    }
+}

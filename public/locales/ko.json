@@ -51,6 +51,10 @@
     "ticTacToe": {
       "name": "틱택토",
       "description": "3목을 만드는 전략 보드 게임"
+    },
+    "rhythm": {
+      "name": "리듬 게임",
+      "description": "음악에 맞춰 노트를 누르는 리듬 액션 게임"
     }
   },
   "ui": {

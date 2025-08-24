@@ -1,3 +1,5 @@
+import { BaseGame } from '../core/BaseGame';
+
 interface Obstacle {
   x: number;
   y: number;
@@ -19,11 +21,7 @@ interface Star {
   collected: boolean;
 }
 
-export default class FluxJump {
-  private container: HTMLElement | null = null;
-  private canvas: HTMLCanvasElement | null = null;
-  private ctx: CanvasRenderingContext2D | null = null;
-  private animationId: number | null = null;
+export default class FluxJump extends BaseGame {
   
   // Game objects
   private player = {
@@ -43,139 +41,68 @@ export default class FluxJump {
   private backgroundX: number = 0;
   
   // Game state
-  private score: number = 0;
-  private highScore: number = 0;
   private distance: number = 0;
   private gameSpeed: number = 5;
-  private gameOver: boolean = false;
-  private isPaused: boolean = false;
   
-  // Game settings
-  private readonly CANVAS_WIDTH = 800;
-  private readonly CANVAS_HEIGHT = 400;
   
   // Controls
   private keys = { space: false, up: false };
 
   constructor() {
-    this.highScore = parseInt(localStorage.getItem('flux-jump-highscore') || '0');
+    super({
+      canvasWidth: 800,
+      canvasHeight: 400,
+      gameName: 'FluxJump'
+    });
   }
 
-  mount(container: HTMLElement) {
-    this.container = container;
-    this.setupGame();
-    this.newGame();
-  }
 
-  unmount() {
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
-    document.removeEventListener('keydown', this.handleKeyDown);
-    document.removeEventListener('keyup', this.handleKeyUp);
-    if (this.container) {
-      this.container.innerHTML = '';
-    }
-  }
-
-  private setupGame() {
+  protected setupGame(): void {
     if (!this.container) return;
 
-    this.container.innerHTML = `
-      <div class="flux-jump-game" style="
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        background: linear-gradient(to bottom, #87CEEB, #98D8E8);
-        min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      ">
-        <h1 style="
-          font-size: 3rem;
-          font-weight: 800;
-          margin-bottom: 1rem;
-          background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        ">Flux Jump</h1>
-        
-        <div class="stats" style="
-          display: flex;
-          gap: 40px;
-          margin-bottom: 20px;
-          color: #333;
-        ">
-          <div style="text-align: center;">
-            <div style="font-size: 18px;">Score</div>
-            <div id="score" style="font-size: 28px; font-weight: bold;">${this.score}</div>
-          </div>
-          <div style="text-align: center;">
-            <div style="font-size: 18px;">Distance</div>
-            <div id="distance" style="font-size: 28px; font-weight: bold;">${Math.floor(this.distance)}m</div>
-          </div>
-          <div style="text-align: center;">
-            <div style="font-size: 18px;">High Score</div>
-            <div id="highscore" style="font-size: 28px; font-weight: bold;">${this.highScore}</div>
-          </div>
-        </div>
-
-        <canvas id="game-canvas" style="
-          border: 3px solid #333;
-          border-radius: 10px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        "></canvas>
-
-        <div style="margin-top: 20px; color: #333; text-align: center;">
-          <div>Space or ↑ : Jump</div>
-          <div>P : Pause</div>
-        </div>
-
-        <div id="game-over" style="
-          display: none;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          text-align: center;
-          background: rgba(255, 255, 255, 0.95);
-          padding: 40px;
-          border-radius: 10px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        ">
-          <h2 style="font-size: 36px; margin-bottom: 20px; color: #ff6b6b;">Game Over!</h2>
-          <p style="font-size: 24px; margin-bottom: 10px;">Score: <span id="final-score">0</span></p>
-          <p style="font-size: 20px; margin-bottom: 30px;">Distance: <span id="final-distance">0</span>m</p>
-          <button onclick="window.fluxJump.restart()" style="
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          ">Play Again</button>
-        </div>
+    const additionalStats = `
+      <div style="text-align: center;">
+        <div style="font-size: 16px; color: #666;">Distance</div>
+        <div id="distance" style="font-size: 24px; font-weight: bold;">0m</div>
       </div>
     `;
 
+    this.container.innerHTML = this.createGameHTML(additionalStats);
+
     this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
-    this.canvas.width = this.CANVAS_WIDTH;
-    this.canvas.height = this.CANVAS_HEIGHT;
-    this.ctx = this.canvas.getContext('2d');
+    if (this.canvas) {
+      this.canvas.width = this.config.canvasWidth;
+      this.canvas.height = this.config.canvasHeight;
+      this.ctx = this.canvas.getContext('2d');
+    }
+
+    // Add controls info
+    const overlaysContainer = document.getElementById('game-overlays');
+    if (overlaysContainer) {
+      overlaysContainer.innerHTML = `
+        <div style="
+          margin-top: 20px;
+          color: ${this.getThemeColor('textSecondary')};
+          text-align: center;
+          font-size: 14px;
+        ">
+          <div>Space / ↑ : Jump</div>
+          <div>P : Pause</div>
+        </div>
+      `;
+    }
 
     // Event listeners
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
     
     // Touch controls
-    this.canvas.addEventListener('touchstart', () => {
-      this.jump();
-    });
+    if (this.canvas) {
+      this.canvas.addEventListener('touchstart', this.handleTouch);
+    }
 
-    (window as any).fluxJump = this;
+    // Store reference for restart
+    (window as any).currentGame = this;
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {
@@ -291,7 +218,7 @@ export default class FluxJump {
     // Generate obstacles
     if (Math.random() < 0.02 && this.distance > 50) {
       const platform = this.platforms[this.platforms.length - 1];
-      if (platform && platform.x > this.CANVAS_WIDTH) {
+      if (platform && platform.x > this.config.canvasWidth) {
         this.obstacles.push({
           x: platform.x + Math.random() * platform.width,
           y: platform.y - 30,
@@ -320,7 +247,7 @@ export default class FluxJump {
     // Generate stars
     if (Math.random() < 0.03) {
       this.stars.push({
-        x: this.CANVAS_WIDTH + 20,
+        x: this.config.canvasWidth + 20,
         y: 100 + Math.random() * 200,
         collected: false
       });
@@ -354,44 +281,55 @@ export default class FluxJump {
     }
     
     // Check game over (fall off screen)
-    if (this.player.y > this.CANVAS_HEIGHT) {
+    if (this.player.y > this.config.canvasHeight) {
       this.endGame();
     }
     
-    this.updateStats();
+    this.updateUI();
   }
 
-  private draw() {
+  protected draw(): void {
     if (!this.ctx) return;
     
-    // Clear canvas with sky gradient
-    const gradient = this.ctx.createLinearGradient(0, 0, 0, this.CANVAS_HEIGHT);
-    gradient.addColorStop(0, '#87CEEB');
-    gradient.addColorStop(1, '#98D8E8');
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+    // Draw themed background
+    this.drawThemedBackground();
+    
+    // Add sky gradient overlay
+    const skyGradient = this.ctx.createLinearGradient(0, 0, 0, this.config.canvasHeight);
+    skyGradient.addColorStop(0, this.getThemeColor('info') + '40');
+    skyGradient.addColorStop(1, this.getThemeColor('accent') + '20');
+    this.ctx.fillStyle = skyGradient;
+    this.ctx.fillRect(0, 0, this.config.canvasWidth, this.config.canvasHeight);
     
     // Draw clouds (background)
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    this.ctx.fillStyle = this.getThemeColor('surface') + 'B3';
     for (let i = 0; i < 3; i++) {
-      const x = (this.backgroundX + i * 300) % (this.CANVAS_WIDTH + 100);
+      const x = (this.backgroundX + i * 300) % (this.config.canvasWidth + 100);
       this.drawCloud(x, 50 + i * 40);
     }
     
     // Draw platforms
     for (const platform of this.platforms) {
-      this.ctx.fillStyle = '#8B4513';
+      // Platform gradient
+      if (this.shouldShowEffect('gradients')) {
+        const platformGradient = this.ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height);
+        platformGradient.addColorStop(0, this.getThemeColor('secondary'));
+        platformGradient.addColorStop(1, this.adjustBrightness(this.getThemeColor('secondary'), -40));
+        this.ctx.fillStyle = platformGradient;
+      } else {
+        this.ctx.fillStyle = this.getThemeColor('secondary');
+      }
       this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
       
       // Grass on top
-      this.ctx.fillStyle = '#228B22';
+      this.ctx.fillStyle = this.getThemeColor('success');
       this.ctx.fillRect(platform.x, platform.y, platform.width, 5);
     }
     
     // Draw obstacles
     for (const obstacle of this.obstacles) {
       if (obstacle.type === 'spike') {
-        this.ctx.fillStyle = '#ff0000';
+        this.ctx.fillStyle = this.getThemeColor('error');
         this.ctx.beginPath();
         this.ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y);
         this.ctx.lineTo(obstacle.x, obstacle.y + obstacle.height);
@@ -399,26 +337,50 @@ export default class FluxJump {
         this.ctx.closePath();
         this.ctx.fill();
       } else {
-        this.ctx.fillStyle = '#666';
+        this.ctx.fillStyle = this.getThemeColor('textSecondary');
         this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        
+        // Add highlight effect
+        if (this.shouldShowEffect('shadows')) {
+          this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+          this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, 4);
+        }
       }
     }
     
     // Draw stars
     for (const star of this.stars) {
-      this.ctx.fillStyle = '#ffd700';
+      // Star glow effect
+      if (this.shouldShowEffect('glow')) {
+        this.ctx.beginPath();
+        this.ctx.arc(star.x, star.y, 15, 0, Math.PI * 2);
+        this.ctx.fillStyle = this.getThemeColor('warning') + '40';
+        this.ctx.fill();
+      }
+      
+      this.ctx.fillStyle = this.getThemeColor('warning');
       this.ctx.beginPath();
       this.ctx.arc(star.x, star.y, 10, 0, Math.PI * 2);
       this.ctx.fill();
       
       // Star shine
-      this.ctx.strokeStyle = '#ffed4e';
+      this.ctx.strokeStyle = this.adjustBrightness(this.getThemeColor('warning'), 20);
       this.ctx.lineWidth = 2;
       this.ctx.stroke();
     }
     
     // Draw player
-    this.ctx.fillStyle = '#ff6b6b';
+    if (this.shouldShowEffect('gradients')) {
+      const playerGradient = this.ctx.createLinearGradient(
+        this.player.x, this.player.y,
+        this.player.x, this.player.y + this.player.height
+      );
+      playerGradient.addColorStop(0, this.getThemeColor('primary'));
+      playerGradient.addColorStop(1, this.adjustBrightness(this.getThemeColor('primary'), -30));
+      this.ctx.fillStyle = playerGradient;
+    } else {
+      this.ctx.fillStyle = this.getThemeColor('primary');
+    }
     this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
     
     // Player face
@@ -448,13 +410,13 @@ export default class FluxJump {
     this.ctx.fill();
   }
 
-  private updateStats() {
+  private updateUI() {
     document.getElementById('score')!.textContent = this.score.toString();
     document.getElementById('distance')!.textContent = Math.floor(this.distance) + 'm';
     
     if (this.score > this.highScore) {
       this.highScore = this.score;
-      localStorage.setItem('flux-jump-highscore', this.highScore.toString());
+      this.saveHighScore();
       document.getElementById('highscore')!.textContent = this.highScore.toString();
     }
   }
@@ -466,13 +428,21 @@ export default class FluxJump {
 
   private endGame() {
     this.gameOver = true;
-    document.getElementById('game-over')!.style.display = 'block';
-    document.getElementById('final-score')!.textContent = this.score.toString();
-    document.getElementById('final-distance')!.textContent = Math.floor(this.distance).toString();
+    this.createGameOverlay('Game Over!', this.score, `
+      <p style="font-size: 18px; margin-bottom: 10px;">Distance: ${Math.floor(this.distance)}m</p>
+    `);
   }
 
-  public restart() {
-    document.getElementById('game-over')!.style.display = 'none';
-    this.newGame();
+  public restart(): void {
+    super.restart();
+    this.updateUI();
+  }
+
+  private adjustBrightness(color: string, amount: number): string {
+    const num = parseInt(color.replace("#", ""), 16);
+    const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+    const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+    const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
   }
 }

@@ -103,6 +103,22 @@ const games = [
     category: 'puzzle',
     status: 'available',
   },
+  {
+    id: 'rhythm',
+    name: '리듬 게임',
+    description: '음악에 맞춰 노트 누르기!',
+    icon: '🎵',
+    category: 'arcade',
+    status: 'available',
+  },
+  {
+    id: 'rhythm-enhanced',
+    name: '리듬 게임 Enhanced',
+    description: '다양한 곡과 난이도로 즐기는 리듬 게임!',
+    icon: '🎸',
+    category: 'arcade',
+    status: 'available',
+  },
 ];
 
 export default function Home() {

@@ -1,3 +1,5 @@
+import { ThemedDOMGame } from '../core/ThemedDOMGame';
+
 interface Particle {
   x: number;
   y: number;
@@ -7,8 +9,7 @@ interface Particle {
   life: number;
 }
 
-export default class CookieClicker {
-  private container: HTMLElement | null = null;
+export default class CookieClicker extends ThemedDOMGame {
   private cookies: number = 0;
   private cookiesPerSecond: number = 0;
   private cookiesPerClick: number = 1;
@@ -38,66 +39,71 @@ export default class CookieClicker {
   private particles: Particle[] = [];
 
   constructor() {
+    super('Cookie Clicker');
     this.loadGame();
   }
 
-  mount(container: HTMLElement) {
-    this.container = container;
+  protected setupGame(): void {
+    if (!this.container) return;
     this.render();
     this.startIntervals();
   }
 
-  unmount() {
+  protected initialize(): void {
+    // Game already initialized in constructor
+  }
+
+  protected cleanup(): void {
     if (this.saveInterval) clearInterval(this.saveInterval);
     if (this.updateInterval) clearInterval(this.updateInterval);
     this.saveGame();
-    if (this.container) {
-      this.container.innerHTML = '';
-    }
+  }
+
+  protected applyTheme(): void {
+    // Re-render to apply new theme
+    this.render();
   }
 
   private render() {
     if (!this.container) return;
 
     this.container.innerHTML = `
-      <div class="cookie-clicker-game" style="
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #8B4513, #D2691E);
-        min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        position: relative;
-        overflow: hidden;
-      ">
-        <h1 style="
-          font-size: 3rem;
-          font-weight: 800;
-          margin-bottom: 1rem;
-          color: white;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        ">Cookie Clicker</h1>
-        
-        <div class="stats" style="
-          text-align: center;
-          color: white;
-          margin-bottom: 30px;
-          background: rgba(0,0,0,0.3);
-          padding: 20px;
-          border-radius: 10px;
-        ">
-          <div style="font-size: 36px; font-weight: bold;" id="cookie-count">${this.formatNumber(this.cookies)} cookies</div>
-          <div style="font-size: 18px; margin-top: 10px;">per second: <span id="cps">${this.formatNumber(this.cookiesPerSecond)}</span></div>
-        </div>
+      <div class="cookie-clicker-game" style="${this.getThemedContainerStyles()}">
+        <div class="game-content" style="max-width: 1200px; margin: 0 auto; width: 100%;">
+          <h1 style="
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-align: center;
+            background: ${this.getThemeGradient('135deg', 'primary', 'secondary')};
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          ">Cookie Clicker</h1>
+          
+          <div class="game-card" style="${this.getThemedCardStyles()}">
+            <div class="stats" style="
+              text-align: center;
+              color: ${this.getThemeColor('text')};
+              margin-bottom: 30px;
+              background: ${this.getThemeColor('surface')};
+              padding: 20px;
+              border-radius: 10px;
+              ${this.shouldShowEffect('shadows') ? 'box-shadow: 0 2px 10px rgba(0,0,0,0.2);' : ''}
+            ">
+              <div style="font-size: 36px; font-weight: bold;" id="cookie-count">${this.formatNumber(this.cookies)} cookies</div>
+              <div style="font-size: 18px; margin-top: 10px; color: ${this.getThemeColor('textSecondary')};">per second: <span id="cps">${this.formatNumber(this.cookiesPerSecond)}</span></div>
+            </div>
 
-        <div class="main-game" style="
-          display: flex;
-          gap: 50px;
-          align-items: flex-start;
-        ">
-          <div class="cookie-section" style="text-align: center;">
-            <div id="cookie" style="
+            <div class="main-game" style="
+              display: flex;
+              gap: 50px;
+              align-items: flex-start;
+              justify-content: center;
+              flex-wrap: wrap;
+            ">
+              <div class="cookie-section" style="text-align: center;">
+                <div id="cookie" style="
               width: 300px;
               height: 300px;
               background: radial-gradient(circle, #D2691E, #8B4513);
@@ -241,18 +247,28 @@ export default class CookieClicker {
         
         const div = document.createElement('div');
         div.style.cssText = `
-          background: ${canAfford ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.3)'};
+          background: ${canAfford ? this.getThemeColor('background') : this.adjustBrightness(this.getThemeColor('background'), -20)};
           padding: 15px;
           margin-bottom: 10px;
-          border-radius: 5px;
+          border-radius: 8px;
           cursor: ${canAfford ? 'pointer' : 'not-allowed'};
-          color: ${canAfford ? 'white' : '#888'};
+          color: ${canAfford ? this.getThemeColor('text') : this.getThemeColor('textSecondary')};
           transition: all 0.2s;
+          border: 2px solid ${canAfford ? this.getThemeColor('primary') + '40' : 'transparent'};
+          ${this.shouldShowEffect('shadows') && canAfford ? 'box-shadow: 0 2px 5px rgba(0,0,0,0.1);' : ''}
         `;
         
         if (canAfford) {
-          div.onmouseover = () => div.style.background = 'rgba(255,255,255,0.3)';
-          div.onmouseout = () => div.style.background = 'rgba(255,255,255,0.2)';
+          div.onmouseover = () => {
+            div.style.background = this.adjustBrightness(this.getThemeColor('background'), 20);
+            div.style.borderColor = this.getThemeColor('primary');
+            div.style.transform = 'scale(1.02)';
+          };
+          div.onmouseout = () => {
+            div.style.background = this.getThemeColor('background');
+            div.style.borderColor = this.getThemeColor('primary') + '40';
+            div.style.transform = 'scale(1)';
+          };
           div.onclick = () => this.buyUpgrade(key);
         }
         
@@ -283,18 +299,28 @@ export default class CookieClicker {
         
         const div = document.createElement('div');
         div.style.cssText = `
-          background: ${canAfford ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.3)'};
+          background: ${canAfford ? this.getThemeColor('background') : this.adjustBrightness(this.getThemeColor('background'), -20)};
           padding: 15px;
           margin-bottom: 10px;
-          border-radius: 5px;
+          border-radius: 8px;
           cursor: ${canAfford ? 'pointer' : 'not-allowed'};
-          color: ${canAfford ? 'white' : '#888'};
+          color: ${canAfford ? this.getThemeColor('text') : this.getThemeColor('textSecondary')};
           transition: all 0.2s;
+          border: 2px solid ${canAfford ? this.getThemeColor('secondary') + '40' : 'transparent'};
+          ${this.shouldShowEffect('shadows') && canAfford ? 'box-shadow: 0 2px 5px rgba(0,0,0,0.1);' : ''}
         `;
         
         if (canAfford) {
-          div.onmouseover = () => div.style.background = 'rgba(255,255,255,0.3)';
-          div.onmouseout = () => div.style.background = 'rgba(255,255,255,0.2)';
+          div.onmouseover = () => {
+            div.style.background = this.adjustBrightness(this.getThemeColor('background'), 20);
+            div.style.borderColor = this.getThemeColor('secondary');
+            div.style.transform = 'scale(1.02)';
+          };
+          div.onmouseout = () => {
+            div.style.background = this.getThemeColor('background');
+            div.style.borderColor = this.getThemeColor('secondary') + '40';
+            div.style.transform = 'scale(1)';
+          };
           div.onclick = () => this.buyClickUpgrade(key);
         }
         
@@ -406,5 +432,13 @@ export default class CookieClicker {
         console.error('Failed to load save:', e);
       }
     }
+  }
+
+  private adjustBrightness(color: string, amount: number): string {
+    const num = parseInt(color.replace("#", ""), 16);
+    const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+    const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+    const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
   }
 }

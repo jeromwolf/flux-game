@@ -1,93 +1,67 @@
-export default class SnakeGame {
-  private container: HTMLElement | null = null;
-  private canvas: HTMLCanvasElement | null = null;
-  private ctx: CanvasRenderingContext2D | null = null;
-  private snake: { x: number; y: number }[] = [];
+import { BaseGame, GameObject } from '../core/BaseGame';
+
+interface SnakeSegment extends GameObject {
+  x: number;
+  y: number;
+}
+
+export default class SnakeGame extends BaseGame {
+  private snake: SnakeSegment[] = [];
   private food: { x: number; y: number } = { x: 0, y: 0 };
   private direction: 'up' | 'down' | 'left' | 'right' = 'right';
   private nextDirection: 'up' | 'down' | 'left' | 'right' = 'right';
-  private score: number = 0;
-  private highScore: number = 0;
-  private gameOver: boolean = false;
-  private isPaused: boolean = false;
   private gridSize: number = 20;
   private cellSize: number = 20;
-  private gameLoop: number | null = null;
+  private lastUpdateTime: number = 0;
+  private updateInterval: number = 150; // Start speed
+  private touchStartX: number = 0;
+  private touchStartY: number = 0;
 
   constructor() {
-    this.highScore = parseInt(localStorage.getItem('snake-highscore') || '0');
+    super({
+      canvasWidth: 400,
+      canvasHeight: 400,
+      gameName: 'Snake Game'
+    });
   }
 
-  mount(container: HTMLElement) {
-    this.container = container;
-    this.setupGame();
-    this.render();
-    this.startGame();
-  }
-
-  unmount() {
-    if (this.gameLoop) {
-      cancelAnimationFrame(this.gameLoop);
-    }
-    if (this.container) {
-      this.container.innerHTML = '';
-    }
-    document.removeEventListener('keydown', this.handleKeyPress);
-  }
-
-  private setupGame() {
+  protected setupGame(): void {
     if (!this.container) return;
 
-    this.container.innerHTML = `
-      <div class="snake-game" style="
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        background-color: #0a0a0a;
-        min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      ">
-        <h1 style="
-          font-size: 3rem;
-          font-weight: 800;
-          margin-bottom: 1rem;
-          background: linear-gradient(135deg, #00ff00, #ffff00);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        ">Snake Game</h1>
-        
-        <div class="score-board" style="
-          display: flex;
-          gap: 40px;
-          margin-bottom: 20px;
-          color: white;
-        ">
-          <div style="text-align: center;">
-            <div style="font-size: 20px; color: #00ff00;">Score</div>
-            <div id="score" style="font-size: 32px; font-weight: bold;">${this.score}</div>
-          </div>
-          <div style="text-align: center;">
-            <div style="font-size: 20px; color: #ffff00;">High Score</div>
-            <div id="highscore" style="font-size: 32px; font-weight: bold;">${this.highScore}</div>
-          </div>
-        </div>
+    const additionalStats = `
+      <div style="text-align: center;">
+        <div style="font-size: 16px; color: #666;">Speed</div>
+        <div id="speed" style="font-size: 24px; font-weight: bold;">1x</div>
+      </div>
+    `;
 
-        <canvas id="game-canvas" style="
-          border: 2px solid #00ff00;
-          background-color: #111;
-          box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        "></canvas>
+    this.container.innerHTML = this.createGameHTML(additionalStats);
 
-        <div class="controls" style="
+    this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+    if (this.canvas) {
+      this.canvas.width = this.config.canvasWidth;
+      this.canvas.height = this.config.canvasHeight;
+      this.ctx = this.canvas.getContext('2d');
+      
+      this.cellSize = this.config.canvasWidth / this.gridSize;
+
+      // Add touch controls
+      this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this));
+      this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this));
+    }
+
+    // Add control buttons
+    const overlaysContainer = document.getElementById('game-overlays');
+    if (overlaysContainer) {
+      overlaysContainer.innerHTML = `
+        <div style="
           margin-top: 20px;
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 10px;
         ">
-          <div style="color: #888; font-size: 14px;">
+          <div style="color: ${this.getThemeColor('textSecondary')}; font-size: 14px;">
             Use arrow keys or WASD to move
           </div>
           <button id="pause-btn" style="
@@ -95,136 +69,50 @@ export default class SnakeGame {
             font-size: 16px;
             font-weight: bold;
             color: white;
-            background: linear-gradient(135deg, #00ff00, #008800);
+            background: ${this.getThemeGradient('135deg', 'primary', 'secondary')};
             border: none;
             border-radius: 5px;
             cursor: pointer;
-          ">
+            transition: transform 0.2s;
+          " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
             Pause
           </button>
         </div>
+      `;
 
-        <div id="game-over" style="
-          display: none;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          text-align: center;
-          background: rgba(0, 0, 0, 0.9);
-          padding: 30px;
-          border-radius: 10px;
-          border: 2px solid #ff0000;
-        ">
-          <h2 style="color: #ff0000; font-size: 36px; margin-bottom: 20px;">Game Over!</h2>
-          <p style="color: white; font-size: 24px; margin-bottom: 20px;">Score: <span id="final-score">0</span></p>
-          <button onclick="window.snakeGame.restart()" style="
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(135deg, #00ff00, #008800);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          ">
-            Play Again
-          </button>
-        </div>
-      </div>
-    `;
+      const pauseBtn = document.getElementById('pause-btn');
+      pauseBtn?.addEventListener('click', () => this.togglePause());
+    }
 
-    this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
-    this.canvas.width = this.gridSize * this.cellSize;
-    this.canvas.height = this.gridSize * this.cellSize;
-    this.ctx = this.canvas.getContext('2d');
+    // Add keyboard controls
+    document.addEventListener('keydown', this.handleKeyPress.bind(this));
 
-    // Add event listeners
-    document.addEventListener('keydown', this.handleKeyPress);
-    
-    const pauseBtn = document.getElementById('pause-btn');
-    pauseBtn?.addEventListener('click', () => this.togglePause());
-
-    // Touch controls for mobile
-    let touchStartX = 0;
-    let touchStartY = 0;
-    
-    this.canvas.addEventListener('touchstart', (e) => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-    });
-
-    this.canvas.addEventListener('touchend', (e) => {
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-      
-      const dx = touchEndX - touchStartX;
-      const dy = touchEndY - touchStartY;
-      
-      if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 0 && this.direction !== 'left') {
-          this.nextDirection = 'right';
-        } else if (dx < 0 && this.direction !== 'right') {
-          this.nextDirection = 'left';
-        }
-      } else {
-        if (dy > 0 && this.direction !== 'up') {
-          this.nextDirection = 'down';
-        } else if (dy < 0 && this.direction !== 'down') {
-          this.nextDirection = 'up';
-        }
-      }
-    });
-
-    // Store reference for restart button
-    (window as any).snakeGame = this;
+    // Store reference for restart
+    (window as any).currentGame = this;
   }
 
-  private handleKeyPress = (e: KeyboardEvent) => {
-    if (this.gameOver) return;
+  protected initialize(): void {
+    this.initSnake();
+    this.updateUI();
+  }
 
-    switch (e.key) {
-      case 'ArrowUp':
-      case 'w':
-      case 'W':
-        if (this.direction !== 'down') this.nextDirection = 'up';
-        break;
-      case 'ArrowDown':
-      case 's':
-      case 'S':
-        if (this.direction !== 'up') this.nextDirection = 'down';
-        break;
-      case 'ArrowLeft':
-      case 'a':
-      case 'A':
-        if (this.direction !== 'right') this.nextDirection = 'left';
-        break;
-      case 'ArrowRight':
-      case 'd':
-      case 'D':
-        if (this.direction !== 'left') this.nextDirection = 'right';
-        break;
-      case ' ':
-        this.togglePause();
-        break;
-    }
-  };
-
-  private initSnake() {
+  private initSnake(): void {
     this.snake = [
-      { x: 5, y: 10 },
-      { x: 4, y: 10 },
-      { x: 3, y: 10 }
+      { x: 5, y: 10, width: 1, height: 1 },
+      { x: 4, y: 10, width: 1, height: 1 },
+      { x: 3, y: 10, width: 1, height: 1 }
     ];
     this.direction = 'right';
     this.nextDirection = 'right';
     this.score = 0;
     this.gameOver = false;
     this.isPaused = false;
+    this.lastUpdateTime = 0;
+    this.updateInterval = 150;
     this.generateFood();
   }
 
-  private generateFood() {
+  private generateFood(): void {
     do {
       this.food = {
         x: Math.floor(Math.random() * this.gridSize),
@@ -233,16 +121,14 @@ export default class SnakeGame {
     } while (this.snake.some(segment => segment.x === this.food.x && segment.y === this.food.y));
   }
 
-  private startGame() {
-    this.initSnake();
-    this.gameLoop = requestAnimationFrame(() => this.update());
-  }
+  protected update(deltaTime: number): void {
+    if (this.gameOver) return;
 
-  private update = () => {
-    if (this.gameOver || this.isPaused) {
-      this.gameLoop = requestAnimationFrame(this.update);
-      return;
-    }
+    this.lastUpdateTime += deltaTime * 1000;
+    
+    if (this.lastUpdateTime < this.updateInterval) return;
+    
+    this.lastUpdateTime = 0;
 
     // Update direction
     this.direction = this.nextDirection;
@@ -273,83 +159,223 @@ export default class SnakeGame {
 
     // Check food collision
     if (head.x === this.food.x && head.y === this.food.y) {
-      this.score += 10;
-      this.updateScore();
+      this.updateScore(10);
       this.generateFood();
+      
+      // Create particle effect at food location
+      const foodPixelX = this.food.x * this.cellSize + this.cellSize / 2;
+      const foodPixelY = this.food.y * this.cellSize + this.cellSize / 2;
+      this.createParticles(foodPixelX, foodPixelY, 10, this.getThemeColor('success'), 3);
+      
+      // Increase speed
+      this.updateInterval = Math.max(50, 150 - Math.floor(this.score / 50) * 10);
+      this.updateUI();
     } else {
       this.snake.pop();
     }
 
-    this.render();
+    // Update particles
+    this.updateParticles(deltaTime);
+  }
 
-    // Continue game loop with speed based on score
-    const speed = Math.max(50, 150 - Math.floor(this.score / 50) * 10);
-    setTimeout(() => {
-      this.gameLoop = requestAnimationFrame(this.update);
-    }, speed);
-  };
-
-  private render() {
+  protected draw(): void {
     if (!this.ctx) return;
 
-    // Clear canvas
-    this.ctx.fillStyle = '#111';
-    this.ctx.fillRect(0, 0, this.canvas!.width, this.canvas!.height);
+    // Draw themed background
+    this.drawThemedBackground();
 
-    // Draw snake
+    // Draw grid lines if effect is enabled
+    if (this.shouldShowEffect('shadows')) {
+      this.ctx.strokeStyle = this.getThemeColor('surface');
+      this.ctx.lineWidth = 0.5;
+      for (let i = 0; i <= this.gridSize; i++) {
+        // Vertical lines
+        this.ctx.beginPath();
+        this.ctx.moveTo(i * this.cellSize, 0);
+        this.ctx.lineTo(i * this.cellSize, this.config.canvasHeight);
+        this.ctx.stroke();
+        
+        // Horizontal lines
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, i * this.cellSize);
+        this.ctx.lineTo(this.config.canvasWidth, i * this.cellSize);
+        this.ctx.stroke();
+      }
+    }
+
+    // Draw snake with gradient
     this.snake.forEach((segment, index) => {
-      this.ctx!.fillStyle = index === 0 ? '#00ff00' : '#008800';
-      this.ctx!.fillRect(
-        segment.x * this.cellSize + 1,
-        segment.y * this.cellSize + 1,
-        this.cellSize - 2,
-        this.cellSize - 2
-      );
+      const x = segment.x * this.cellSize;
+      const y = segment.y * this.cellSize;
+      
+      if (index === 0) {
+        // Head with gradient
+        if (this.shouldShowEffect('gradients')) {
+          const gradient = this.ctx!.createRadialGradient(
+            x + this.cellSize / 2, y + this.cellSize / 2, 0,
+            x + this.cellSize / 2, y + this.cellSize / 2, this.cellSize / 2
+          );
+          gradient.addColorStop(0, this.getThemeColor('success'));
+          gradient.addColorStop(1, this.getThemeColor('primary'));
+          this.ctx!.fillStyle = gradient;
+        } else {
+          this.ctx!.fillStyle = this.getThemeColor('success');
+        }
+      } else {
+        // Body segments
+        this.ctx!.fillStyle = this.getThemeColor('primary');
+        this.ctx!.globalAlpha = 1 - (index / this.snake.length) * 0.3;
+      }
+      
+      this.ctx!.fillRect(x + 2, y + 2, this.cellSize - 4, this.cellSize - 4);
+      this.ctx!.globalAlpha = 1;
+      
+      // Add glow effect to head
+      if (index === 0 && this.shouldShowEffect('glow')) {
+        this.ctx!.shadowColor = this.getThemeColor('success');
+        this.ctx!.shadowBlur = 10;
+        this.ctx!.fillRect(x + 2, y + 2, this.cellSize - 4, this.cellSize - 4);
+        this.ctx!.shadowBlur = 0;
+      }
     });
 
-    // Draw food
-    this.ctx.fillStyle = '#ff0000';
+    // Draw food with animation
+    const pulse = Math.sin(Date.now() * 0.005) * 0.2 + 0.8;
+    this.ctx.fillStyle = this.getThemeColor('error');
+    
+    if (this.shouldShowEffect('glow')) {
+      this.ctx.shadowColor = this.getThemeColor('error');
+      this.ctx.shadowBlur = 15 * pulse;
+    }
+    
     this.ctx.beginPath();
     this.ctx.arc(
       this.food.x * this.cellSize + this.cellSize / 2,
       this.food.y * this.cellSize + this.cellSize / 2,
-      this.cellSize / 2 - 2,
+      (this.cellSize / 2 - 4) * pulse,
       0,
       Math.PI * 2
     );
     this.ctx.fill();
-  }
+    this.ctx.shadowBlur = 0;
 
-  private updateScore() {
-    const scoreEl = document.getElementById('score');
-    if (scoreEl) scoreEl.textContent = this.score.toString();
+    // Draw particles
+    if (this.shouldShowEffect('particles')) {
+      this.drawParticles();
+    }
 
-    if (this.score > this.highScore) {
-      this.highScore = this.score;
-      localStorage.setItem('snake-highscore', this.highScore.toString());
-      const highScoreEl = document.getElementById('highscore');
-      if (highScoreEl) highScoreEl.textContent = this.highScore.toString();
+    // Draw pause overlay
+    if (this.isPaused && !this.gameOver) {
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      this.ctx.fillRect(0, 0, this.config.canvasWidth, this.config.canvasHeight);
+      
+      this.ctx.fillStyle = this.getThemeColor('text');
+      this.ctx.font = 'bold 36px sans-serif';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText('PAUSED', this.config.canvasWidth / 2, this.config.canvasHeight / 2);
     }
   }
 
-  private endGame() {
-    this.gameOver = true;
-    const gameOverEl = document.getElementById('game-over');
-    const finalScoreEl = document.getElementById('final-score');
-    if (gameOverEl) gameOverEl.style.display = 'block';
-    if (finalScoreEl) finalScoreEl.textContent = this.score.toString();
+  protected cleanup(): void {
+    document.removeEventListener('keydown', this.handleKeyPress.bind(this));
+    if (this.canvas) {
+      this.canvas.removeEventListener('touchstart', this.handleTouchStart.bind(this));
+      this.canvas.removeEventListener('touchend', this.handleTouchEnd.bind(this));
+    }
   }
 
-  private togglePause() {
+  private handleKeyPress(e: KeyboardEvent): void {
+    if (this.gameOver) return;
+
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'w':
+      case 'W':
+        if (this.direction !== 'down') this.nextDirection = 'up';
+        break;
+      case 'ArrowDown':
+      case 's':
+      case 'S':
+        if (this.direction !== 'up') this.nextDirection = 'down';
+        break;
+      case 'ArrowLeft':
+      case 'a':
+      case 'A':
+        if (this.direction !== 'right') this.nextDirection = 'left';
+        break;
+      case 'ArrowRight':
+      case 'd':
+      case 'D':
+        if (this.direction !== 'left') this.nextDirection = 'right';
+        break;
+      case ' ':
+        this.togglePause();
+        break;
+    }
+  }
+
+  private handleTouchStart(e: TouchEvent): void {
+    this.touchStartX = e.touches[0].clientX;
+    this.touchStartY = e.touches[0].clientY;
+  }
+
+  private handleTouchEnd(e: TouchEvent): void {
+    if (this.gameOver) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    
+    const dx = touchEndX - this.touchStartX;
+    const dy = touchEndY - this.touchStartY;
+    
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 0 && this.direction !== 'left') {
+        this.nextDirection = 'right';
+      } else if (dx < 0 && this.direction !== 'right') {
+        this.nextDirection = 'left';
+      }
+    } else {
+      if (dy > 0 && this.direction !== 'up') {
+        this.nextDirection = 'down';
+      } else if (dy < 0 && this.direction !== 'down') {
+        this.nextDirection = 'up';
+      }
+    }
+  }
+
+  private togglePause(): void {
     if (this.gameOver) return;
     this.isPaused = !this.isPaused;
     const pauseBtn = document.getElementById('pause-btn');
     if (pauseBtn) pauseBtn.textContent = this.isPaused ? 'Resume' : 'Pause';
   }
 
-  public restart() {
-    const gameOverEl = document.getElementById('game-over');
-    if (gameOverEl) gameOverEl.style.display = 'none';
-    this.startGame();
+  private endGame(): void {
+    this.gameOver = true;
+    this.createGameOverlay('Game Over!', this.score, `
+      <p style="font-size: 18px; margin-bottom: 10px;">Speed: ${this.getSpeedMultiplier()}x</p>
+    `);
+  }
+
+  private updateUI(): void {
+    const scoreEl = document.getElementById('score');
+    const highScoreEl = document.getElementById('highscore');
+    const speedEl = document.getElementById('speed');
+    
+    if (scoreEl) scoreEl.textContent = this.score.toString();
+    if (highScoreEl) highScoreEl.textContent = this.highScore.toString();
+    if (speedEl) speedEl.textContent = this.getSpeedMultiplier() + 'x';
+  }
+
+  private getSpeedMultiplier(): string {
+    const baseSpeed = 150;
+    const currentSpeed = this.updateInterval;
+    return ((baseSpeed / currentSpeed).toFixed(1));
+  }
+
+  public restart(): void {
+    super.restart();
+    this.updateUI();
   }
 }

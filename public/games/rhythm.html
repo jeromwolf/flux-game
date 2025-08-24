@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhythm Game - Flux Games</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/games/arcade/rhythm.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <button class="back-btn" onclick="window.location.href='/'">← Back</button>
+            <h1>Rhythm Game</h1>
+            <div class="game-stats">
+                <span class="score">Score: <span id="score">0</span></span>
+            </div>
+        </header>
+
+        <div class="game-content">
+            <div class="game-info">
+                <h2>How to Play</h2>
+                <div class="controls">
+                    <p><strong>D, F, J, K</strong> - Hit notes in lanes 1-4</p>
+                    <p><strong>Space</strong> - Pause game</p>
+                </div>
+                <div class="instructions">
+                    <p>• Press keys when notes reach the hit line</p>
+                    <p>• Perfect timing = more points!</p>
+                    <p>• Keep your combo for high scores</p>
+                    <p>• Don't miss too many notes!</p>
+                </div>
+                <button class="start-btn" id="startBtn">Start Game</button>
+            </div>
+
+            <div class="game-canvas-wrapper">
+                <canvas id="gameCanvas" width="600" height="600"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { RhythmGame } from '/js/games/arcade/RhythmGame.js';
+        
+        let game;
+        
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (!game) {
+                game = new RhythmGame('gameCanvas');
+                game.init().then(() => {
+                    game.start();
+                });
+            } else {
+                game.start();
+            }
+        });
+        
+        // Update score display
+        setInterval(() => {
+            if (game && game.score !== undefined) {
+                document.getElementById('score').textContent = game.score;
+            }
+        }, 100);
+    </script>
+</body>
+</html>

@@ -51,6 +51,10 @@
     "ticTacToe": {
       "name": "Tic Tac Toe",
       "description": "Strategic board game making three in a row"
+    },
+    "rhythm": {
+      "name": "Rhythm Game",
+      "description": "Hit the notes to the beat in this rhythm action game"
     }
   },
   "ui": {

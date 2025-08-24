@@ -1,3 +1,5 @@
+import { ThemedDOMGame } from '../core/ThemedDOMGame';
+
 interface Tile {
   id: number;
   value: number;
@@ -15,13 +17,9 @@ interface GameState {
   won: boolean;
 }
 
-export default class Game2048 {
-  private container: HTMLElement | null = null;
+export default class Game2048 extends ThemedDOMGame {
   private size = 4;
   private board: number[][] = [];
-  private score = 0;
-  private bestScore = 0;
-  private gameOver = false;
   private won = false;
   private continueAfterWin = false;
   private tiles = new Map<number, Tile>();
@@ -38,25 +36,24 @@ export default class Game2048 {
   private bestScoreElement: HTMLElement | null = null;
   private messageElement: HTMLElement | null = null;
 
+  // Touch tracking
+  private touchStartX = 0;
+  private touchStartY = 0;
+
   constructor() {
-    this.bestScore = parseInt(localStorage.getItem('2048-best') || '0');
+    super('2048');
   }
 
-  mount(container: HTMLElement) {
-    this.container = container;
-    this.init();
-  }
-
-  unmount() {
-    if (this.container) {
-      this.container.innerHTML = '';
-      document.removeEventListener('keydown', this.handleKeyPress);
-    }
-  }
-
-  private init() {
+  protected setupGame(): void {
     if (!this.container) return;
 
+    this.createGameHTML();
+    this.bindElements();
+    this.bindEvents();
+    this.applyTheme();
+  }
+
+  protected initialize(): void {
     this.board = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
     this.score = 0;
     this.gameOver = false;
@@ -68,72 +65,143 @@ export default class Game2048 {
     this.canUndo = true;
     this.combo = 0;
 
-    this.setupUI();
     this.addNewTile();
     this.addNewTile();
     this.updateDisplay();
   }
 
-  private setupUI() {
+  protected cleanup(): void {
+    document.removeEventListener('keydown', this.handleKeyPress);
+    if (this.boardElement) {
+      this.boardElement.removeEventListener('touchstart', this.handleTouchStart);
+      this.boardElement.removeEventListener('touchend', this.handleTouchEnd);
+    }
+  }
+
+  private createGameHTML(): void {
     if (!this.container) return;
 
     this.container.innerHTML = `
-      <div class="w-full max-w-md mx-auto">
-        <div class="bg-white rounded-2xl p-6 shadow-xl">
-          <div class="mb-6">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <h2 class="text-3xl font-bold text-gray-800">2048</h2>
-                <p class="text-gray-600">타일을 합쳐 2048을 만드세요!</p>
+      <div class="game-2048" style="${this.getThemedContainerStyles()}">
+        <div class="game-content" style="max-width: 500px; margin: 0 auto;">
+          <div class="game-card" style="${this.getThemedCardStyles()}">
+            <div class="game-header" style="margin-bottom: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                <div>
+                  <h1 style="
+                    font-size: 48px;
+                    font-weight: 800;
+                    margin: 0 0 8px 0;
+                    background: ${this.getThemeGradient('135deg', 'primary', 'secondary')};
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                  ">2048</h1>
+                  <p style="margin: 0; color: ${this.getThemeColor('textSecondary')};">
+                    타일을 합쳐 2048을 만드세요!
+                  </p>
+                </div>
+                <div style="display: flex; gap: 16px;">
+                  <div style="text-align: center;">
+                    <div style="font-size: 14px; color: ${this.getThemeColor('textSecondary')};">점수</div>
+                    <div id="current-score" style="font-size: 24px; font-weight: bold; color: ${this.getThemeColor('text')};">0</div>
+                  </div>
+                  <div style="text-align: center;">
+                    <div style="font-size: 14px; color: ${this.getThemeColor('textSecondary')};">최고기록</div>
+                    <div id="best-score" style="font-size: 24px; font-weight: bold; color: ${this.getThemeColor('primary')};">${this.highScore}</div>
+                  </div>
+                </div>
               </div>
-              <div class="flex gap-4">
-                <div class="text-center">
-                  <div class="text-sm text-gray-600">점수</div>
-                  <div class="text-2xl font-bold text-gray-800" id="current-score">0</div>
-                </div>
-                <div class="text-center">
-                  <div class="text-sm text-gray-600">최고기록</div>
-                  <div class="text-2xl font-bold text-gray-800" id="best-score">${this.bestScore}</div>
-                </div>
+              
+              <div style="display: flex; gap: 12px;">
+                <button id="new-game-btn" style="${this.getThemedButtonStyles('primary')}">
+                  새 게임
+                </button>
+                <button id="undo-btn" style="${this.getThemedButtonStyles('secondary')}">
+                  되돌리기
+                </button>
               </div>
             </div>
             
-            <div class="flex gap-4">
-              <button class="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition" id="new-game-btn">
-                새 게임
-              </button>
-              <button class="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition disabled:opacity-50" id="undo-btn">
-                되돌리기
+            <div class="game-board-wrapper" style="
+              position: relative;
+              background: ${this.getThemeColor('background')};
+              border-radius: 12px;
+              padding: 8px;
+              ${this.shouldShowEffect('shadows') ? 'box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);' : ''}
+            ">
+              <div id="game-board" style="
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+              ">
+                ${Array(16).fill(`<div style="
+                  background: ${this.getThemeColor('surface')};
+                  border-radius: 6px;
+                  aspect-ratio: 1;
+                "></div>`).join('')}
+              </div>
+              <div id="tile-container" style="
+                position: absolute;
+                inset: 8px;
+                pointer-events: none;
+              "></div>
+            </div>
+            
+            <div id="game-message" style="
+              display: none;
+              position: absolute;
+              inset: 0;
+              background: rgba(0, 0, 0, 0.7);
+              border-radius: 16px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              z-index: 100;
+            ">
+              <h2 id="message-title" style="
+                font-size: 48px;
+                font-weight: bold;
+                color: white;
+                margin-bottom: 16px;
+              "></h2>
+              <p id="message-text" style="
+                font-size: 20px;
+                color: white;
+                margin-bottom: 24px;
+              "></p>
+              <button id="continue-btn" style="${this.getThemedButtonStyles('primary')}">
+                계속하기
               </button>
             </div>
-          </div>
-          
-          <div class="relative bg-gray-700 rounded-lg p-2">
-            <div class="grid grid-cols-4 gap-2" id="game-board">
-              ${Array(16).fill('<div class="bg-gray-600 rounded aspect-square"></div>').join('')}
+            
+            <div style="
+              margin-top: 16px;
+              text-align: center;
+              color: ${this.getThemeColor('textSecondary')};
+              font-size: 14px;
+            ">
+              화살표 키 또는 스와이프로 타일을 이동하세요
             </div>
-            <div class="absolute inset-0 pointer-events-none p-2" id="tile-container"></div>
-          </div>
-          
-          <div class="mt-4 text-center text-gray-600 text-sm">
-            <p>화살표 키 또는 스와이프로 타일을 이동하세요</p>
           </div>
         </div>
       </div>
     `;
+  }
 
+  private bindElements(): void {
     this.boardElement = document.getElementById('game-board');
     this.tileContainer = document.getElementById('tile-container');
     this.scoreElement = document.getElementById('current-score');
     this.bestScoreElement = document.getElementById('best-score');
-
-    this.bindEvents();
+    this.messageElement = document.getElementById('game-message');
   }
 
-  private bindEvents() {
+  private bindEvents(): void {
     const newGameBtn = document.getElementById('new-game-btn');
     if (newGameBtn) {
-      newGameBtn.addEventListener('click', () => this.init());
+      newGameBtn.addEventListener('click', () => this.restart());
     }
 
     const undoBtn = document.getElementById('undo-btn');
@@ -141,38 +209,27 @@ export default class Game2048 {
       undoBtn.addEventListener('click', () => this.undo());
     }
 
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', () => this.hideMessage());
+    }
+
     document.addEventListener('keydown', this.handleKeyPress);
 
-    // Touch events
-    let touchStartX = 0;
-    let touchStartY = 0;
-
     if (this.boardElement) {
-      this.boardElement.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-      });
+      this.boardElement.addEventListener('touchstart', this.handleTouchStart);
+      this.boardElement.addEventListener('touchend', this.handleTouchEnd);
+    }
+  }
 
-      this.boardElement.addEventListener('touchend', (e) => {
-        if (this.gameOver && !this.continueAfterWin) return;
-
-        const touchEndX = e.changedTouches[0].clientX;
-        const touchEndY = e.changedTouches[0].clientY;
-
-        const dx = touchEndX - touchStartX;
-        const dy = touchEndY - touchStartY;
-
-        if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
-          let direction: string;
-          
-          if (Math.abs(dx) > Math.abs(dy)) {
-            direction = dx > 0 ? 'right' : 'left';
-          } else {
-            direction = dy > 0 ? 'down' : 'up';
-          }
-          
-          this.makeMove(direction);
-        }
+  protected applyTheme(): void {
+    // Re-apply theme colors to dynamic elements
+    if (this.tileContainer) {
+      const tiles = this.tileContainer.querySelectorAll('.game-tile');
+      tiles.forEach((tile) => {
+        const value = parseInt(tile.getAttribute('data-value') || '0');
+        (tile as HTMLElement).style.background = this.getTileColor(value);
+        (tile as HTMLElement).style.color = value > 4 ? 'white' : this.getThemeColor('text');
       });
     }
   }
@@ -203,294 +260,211 @@ export default class Game2048 {
     if (direction) {
       this.makeMove(direction);
     }
-  }
+  };
 
-  private makeMove(direction: string) {
-    this.saveState();
-    
-    const moved = this.move(direction);
-    
-    if (moved) {
-      setTimeout(() => {
-        this.addNewTile();
-        this.updateDisplay();
-        
-        if (this.checkWin() && !this.won) {
-          this.won = true;
-          this.showWinMessage();
-        } else if (this.checkGameOver()) {
-          this.gameOver = true;
-          this.showGameOverMessage();
-        }
-      }, 150);
+  private handleTouchStart = (e: TouchEvent) => {
+    this.touchStartX = e.touches[0].clientX;
+    this.touchStartY = e.touches[0].clientY;
+  };
+
+  private handleTouchEnd = (e: TouchEvent) => {
+    if (this.gameOver && !this.continueAfterWin) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+
+    const dx = touchEndX - this.touchStartX;
+    const dy = touchEndY - this.touchStartY;
+
+    if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
+      let direction: string;
+      
+      if (Math.abs(dx) > Math.abs(dy)) {
+        direction = dx > 0 ? 'right' : 'left';
+      } else {
+        direction = dy > 0 ? 'down' : 'up';
+      }
+      
+      this.makeMove(direction);
     }
-  }
-
-  private saveState() {
-    this.previousState = {
-      board: this.board.map(row => [...row]),
-      score: this.score,
-      tiles: new Map(this.tiles),
-      gameOver: this.gameOver,
-      won: this.won
-    };
-    this.canUndo = true;
-    
-    const undoBtn = document.getElementById('undo-btn');
-    if (undoBtn) undoBtn.removeAttribute('disabled');
-  }
-
-  private undo() {
-    if (!this.canUndo || !this.previousState) return;
-
-    this.board = this.previousState.board.map(row => [...row]);
-    this.score = this.previousState.score;
-    this.tiles = new Map(this.previousState.tiles);
-    this.gameOver = this.previousState.gameOver;
-    this.won = this.previousState.won;
-
-    this.canUndo = false;
-    const undoBtn = document.getElementById('undo-btn');
-    if (undoBtn) undoBtn.setAttribute('disabled', 'true');
-
-    this.updateDisplay();
-  }
+  };
 
   private addNewTile() {
-    const emptyCells: { row: number; col: number }[] = [];
+    const emptyCells: {row: number, col: number}[] = [];
     
-    for (let i = 0; i < this.size; i++) {
-      for (let j = 0; j < this.size; j++) {
-        if (this.board[i][j] === 0) {
-          emptyCells.push({ row: i, col: j });
+    for (let row = 0; row < this.size; row++) {
+      for (let col = 0; col < this.size; col++) {
+        if (this.board[row][col] === 0) {
+          emptyCells.push({row, col});
         }
       }
     }
 
     if (emptyCells.length > 0) {
-      const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      const {row, col} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
       const value = Math.random() < 0.9 ? 2 : 4;
-      this.board[randomCell.row][randomCell.col] = value;
-
+      this.board[row][col] = value;
+      
       const tile: Tile = {
         id: this.tileId++,
-        value: value,
-        row: randomCell.row,
-        col: randomCell.col,
+        value,
+        row,
+        col,
         isNew: true,
         isMerged: false
       };
+      
       this.tiles.set(tile.id, tile);
     }
   }
 
-  private move(direction: string): boolean {
+  private makeMove(direction: string) {
+    this.saveState();
+    
+    const moved = this.moveTiles(direction);
+    
+    if (moved) {
+      this.addNewTile();
+      this.updateDisplay();
+      
+      if (this.checkWin() && !this.continueAfterWin) {
+        this.showMessage('승리!', `점수: ${this.score}`);
+        this.won = true;
+      } else if (this.checkGameOver()) {
+        this.showMessage('게임 오버', `최종 점수: ${this.score}`);
+        this.gameOver = true;
+      }
+    } else {
+      this.previousState = null;
+    }
+  }
+
+  private moveTiles(direction: string): boolean {
     let moved = false;
     const newBoard = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
     const newTiles = new Map<number, Tile>();
-    this.tileId = 0;
+    let newTileId = this.tileId;
 
-    if (direction === 'left') {
-      for (let row = 0; row < this.size; row++) {
-        const values = this.board[row].filter(val => val !== 0);
-        const merged: number[] = [];
-        
-        for (let i = 0; i < values.length - 1; i++) {
-          if (values[i] === values[i + 1]) {
-            values[i] *= 2;
-            values[i + 1] = 0;
-            this.score += values[i];
-            merged.push(i);
+    const vectors: {[key: string]: {x: number, y: number}} = {
+      up: {x: 0, y: -1},
+      down: {x: 0, y: 1},
+      left: {x: -1, y: 0},
+      right: {x: 1, y: 0}
+    };
+
+    const vector = vectors[direction];
+    const traversals = this.buildTraversals(vector);
+
+    traversals.x.forEach((x) => {
+      traversals.y.forEach((y) => {
+        const cell = {x, y};
+        const tile = this.board[y][x];
+
+        if (tile) {
+          const positions = this.findFarthestPosition(cell, vector, newBoard);
+          const next = positions.next;
+
+          if (next && newBoard[next.y][next.x] === tile && !this.hasMerged(next, newTiles)) {
+            // Merge
+            const merged = tile * 2;
+            newBoard[next.y][next.x] = merged;
+            
+            const mergedTile: Tile = {
+              id: newTileId++,
+              value: merged,
+              row: next.y,
+              col: next.x,
+              isNew: false,
+              isMerged: true
+            };
+            
+            newTiles.set(mergedTile.id, mergedTile);
+            
+            this.updateScore(merged);
+            
+            if (positions.farthest.x !== x || positions.farthest.y !== y) {
+              moved = true;
+            }
+          } else {
+            // Move
+            newBoard[positions.farthest.y][positions.farthest.x] = tile;
+            
+            const movedTile: Tile = {
+              id: newTileId++,
+              value: tile,
+              row: positions.farthest.y,
+              col: positions.farthest.x,
+              isNew: false,
+              isMerged: false
+            };
+            
+            newTiles.set(movedTile.id, movedTile);
+            
+            if (positions.farthest.x !== x || positions.farthest.y !== y) {
+              moved = true;
+            }
           }
         }
-        
-        const finalValues = values.filter(val => val !== 0);
-        for (let col = 0; col < finalValues.length; col++) {
-          newBoard[row][col] = finalValues[col];
-          if (this.board[row][col] !== newBoard[row][col]) moved = true;
-          
-          const tile: Tile = {
-            id: this.tileId++,
-            value: finalValues[col],
-            row: row,
-            col: col,
-            isNew: false,
-            isMerged: merged.includes(col)
-          };
-          newTiles.set(tile.id, tile);
-        }
-      }
-    } else if (direction === 'right') {
-      for (let row = 0; row < this.size; row++) {
-        const values = this.board[row].filter(val => val !== 0);
-        const merged: number[] = [];
-        
-        for (let i = values.length - 1; i > 0; i--) {
-          if (values[i] === values[i - 1]) {
-            values[i] *= 2;
-            values[i - 1] = 0;
-            this.score += values[i];
-            merged.push(values.length - 1 - i);
-          }
-        }
-        
-        const finalValues = values.filter(val => val !== 0);
-        const startCol = this.size - finalValues.length;
-        for (let i = 0; i < finalValues.length; i++) {
-          const col = startCol + i;
-          newBoard[row][col] = finalValues[i];
-          if (this.board[row][col] !== newBoard[row][col]) moved = true;
-          
-          const tile: Tile = {
-            id: this.tileId++,
-            value: finalValues[i],
-            row: row,
-            col: col,
-            isNew: false,
-            isMerged: merged.includes(i)
-          };
-          newTiles.set(tile.id, tile);
-        }
-      }
-    } else if (direction === 'up') {
-      for (let col = 0; col < this.size; col++) {
-        const values: number[] = [];
-        for (let row = 0; row < this.size; row++) {
-          if (this.board[row][col] !== 0) values.push(this.board[row][col]);
-        }
-        
-        const merged: number[] = [];
-        for (let i = 0; i < values.length - 1; i++) {
-          if (values[i] === values[i + 1]) {
-            values[i] *= 2;
-            values[i + 1] = 0;
-            this.score += values[i];
-            merged.push(i);
-          }
-        }
-        
-        const finalValues = values.filter(val => val !== 0);
-        for (let row = 0; row < finalValues.length; row++) {
-          newBoard[row][col] = finalValues[row];
-          if (this.board[row][col] !== newBoard[row][col]) moved = true;
-          
-          const tile: Tile = {
-            id: this.tileId++,
-            value: finalValues[row],
-            row: row,
-            col: col,
-            isNew: false,
-            isMerged: merged.includes(row)
-          };
-          newTiles.set(tile.id, tile);
-        }
-      }
-    } else if (direction === 'down') {
-      for (let col = 0; col < this.size; col++) {
-        const values: number[] = [];
-        for (let row = 0; row < this.size; row++) {
-          if (this.board[row][col] !== 0) values.push(this.board[row][col]);
-        }
-        
-        const merged: number[] = [];
-        for (let i = values.length - 1; i > 0; i--) {
-          if (values[i] === values[i - 1]) {
-            values[i] *= 2;
-            values[i - 1] = 0;
-            this.score += values[i];
-            merged.push(values.length - 1 - i);
-          }
-        }
-        
-        const finalValues = values.filter(val => val !== 0);
-        const startRow = this.size - finalValues.length;
-        for (let i = 0; i < finalValues.length; i++) {
-          const row = startRow + i;
-          newBoard[row][col] = finalValues[i];
-          if (this.board[row][col] !== newBoard[row][col]) moved = true;
-          
-          const tile: Tile = {
-            id: this.tileId++,
-            value: finalValues[i],
-            row: row,
-            col: col,
-            isNew: false,
-            isMerged: merged.includes(i)
-          };
-          newTiles.set(tile.id, tile);
-        }
-      }
-    }
+      });
+    });
 
     if (moved) {
       this.board = newBoard;
       this.tiles = newTiles;
+      this.tileId = newTileId;
+      
+      const now = Date.now();
+      if (now - this.lastMergeTime < 1000) {
+        this.combo++;
+      } else {
+        this.combo = 0;
+      }
+      this.lastMergeTime = now;
     }
 
     return moved;
   }
 
-  private updateDisplay() {
-    if (!this.tileContainer || !this.scoreElement) return;
+  private buildTraversals(vector: {x: number, y: number}) {
+    const traversals = {x: [] as number[], y: [] as number[]};
 
-    // Update score
-    this.scoreElement.textContent = this.score.toString();
-    
-    if (this.score > this.bestScore) {
-      this.bestScore = this.score;
-      localStorage.setItem('2048-best', this.bestScore.toString());
-      if (this.bestScoreElement) {
-        this.bestScoreElement.textContent = this.bestScore.toString();
-      }
+    for (let pos = 0; pos < this.size; pos++) {
+      traversals.x.push(pos);
+      traversals.y.push(pos);
     }
 
-    // Update tiles
-    this.tileContainer.innerHTML = '';
+    if (vector.x === 1) traversals.x = traversals.x.reverse();
+    if (vector.y === 1) traversals.y = traversals.y.reverse();
+
+    return traversals;
+  }
+
+  private findFarthestPosition(cell: {x: number, y: number}, vector: {x: number, y: number}, board: number[][]) {
+    let previous;
     
-    this.tiles.forEach(tile => {
-      const tileElement = document.createElement('div');
-      tileElement.className = `absolute rounded flex items-center justify-center font-bold transition-all duration-150`;
-      tileElement.style.width = 'calc((100% - 24px) / 4)';
-      tileElement.style.height = 'calc((100% - 24px) / 4)';
-      tileElement.style.left = `${tile.col * 25 + 2}%`;
-      tileElement.style.top = `${tile.row * 25 + 2}%`;
-      
-      // Tile colors based on value
-      const colors: { [key: number]: string } = {
-        2: 'bg-gray-100 text-gray-700',
-        4: 'bg-gray-200 text-gray-700',
-        8: 'bg-orange-300 text-white',
-        16: 'bg-orange-400 text-white',
-        32: 'bg-orange-500 text-white',
-        64: 'bg-orange-600 text-white',
-        128: 'bg-yellow-400 text-white text-2xl',
-        256: 'bg-yellow-500 text-white text-2xl',
-        512: 'bg-yellow-600 text-white text-2xl',
-        1024: 'bg-yellow-700 text-white text-xl',
-        2048: 'bg-yellow-800 text-white text-xl'
-      };
-      
-      tileElement.className += ' ' + (colors[tile.value] || 'bg-gray-800 text-white text-xl');
-      tileElement.textContent = tile.value.toString();
-      
-      if (tile.isNew) {
-        tileElement.style.transform = 'scale(0)';
-        setTimeout(() => {
-          tileElement.style.transform = 'scale(1)';
-        }, 10);
+    do {
+      previous = cell;
+      cell = {x: previous.x + vector.x, y: previous.y + vector.y};
+    } while (this.withinBounds(cell) && board[cell.y][cell.x] === 0);
+
+    return {
+      farthest: previous,
+      next: this.withinBounds(cell) ? cell : null
+    };
+  }
+
+  private hasMerged(position: {x: number, y: number}, tiles: Map<number, Tile>): boolean {
+    for (const tile of tiles.values()) {
+      if (tile.row === position.y && tile.col === position.x && tile.isMerged) {
+        return true;
       }
-      
-      if (tile.isMerged) {
-        setTimeout(() => {
-          tileElement.style.transform = 'scale(1.1)';
-          setTimeout(() => {
-            tileElement.style.transform = 'scale(1)';
-          }, 100);
-        }, 10);
-      }
-      
-      this.tileContainer?.appendChild(tileElement);
-    });
+    }
+    return false;
+  }
+
+  private withinBounds(position: {x: number, y: number}): boolean {
+    return position.x >= 0 && position.x < this.size &&
+           position.y >= 0 && position.y < this.size;
   }
 
   private checkWin(): boolean {
@@ -508,75 +482,176 @@ export default class Game2048 {
     // Check for empty cells
     for (let row = 0; row < this.size; row++) {
       for (let col = 0; col < this.size; col++) {
-        if (this.board[row][col] === 0) return false;
+        if (this.board[row][col] === 0) {
+          return false;
+        }
       }
     }
 
     // Check for possible merges
     for (let row = 0; row < this.size; row++) {
       for (let col = 0; col < this.size; col++) {
-        const current = this.board[row][col];
+        const value = this.board[row][col];
         
-        // Check right
-        if (col < this.size - 1 && current === this.board[row][col + 1]) return false;
-        
-        // Check down
-        if (row < this.size - 1 && current === this.board[row + 1][col]) return false;
+        if ((row > 0 && this.board[row - 1][col] === value) ||
+            (row < this.size - 1 && this.board[row + 1][col] === value) ||
+            (col > 0 && this.board[row][col - 1] === value) ||
+            (col < this.size - 1 && this.board[row][col + 1] === value)) {
+          return false;
+        }
       }
     }
 
     return true;
   }
 
-  private showWinMessage() {
-    const overlay = document.createElement('div');
-    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    overlay.innerHTML = `
-      <div class="bg-white rounded-lg p-8 text-center">
-        <h2 class="text-3xl font-bold mb-4">축하합니다!</h2>
-        <p class="text-xl mb-6">2048을 만들었습니다!</p>
-        <div class="flex gap-4 justify-center">
-          <button class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700" id="continue-btn">
-            계속하기
-          </button>
-          <button class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300" id="new-game-win-btn">
-            새 게임
-          </button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(overlay);
-    
-    document.getElementById('continue-btn')?.addEventListener('click', () => {
-      this.continueAfterWin = true;
-      document.body.removeChild(overlay);
-    });
-    
-    document.getElementById('new-game-win-btn')?.addEventListener('click', () => {
-      document.body.removeChild(overlay);
-      this.init();
-    });
+  private saveState() {
+    this.previousState = {
+      board: this.board.map(row => [...row]),
+      score: this.score,
+      tiles: new Map(this.tiles),
+      gameOver: this.gameOver,
+      won: this.won
+    };
+    this.canUndo = true;
   }
 
-  private showGameOverMessage() {
-    const overlay = document.createElement('div');
-    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    overlay.innerHTML = `
-      <div class="bg-white rounded-lg p-8 text-center">
-        <h2 class="text-3xl font-bold mb-4 text-red-600">게임 오버!</h2>
-        <p class="text-xl mb-6">최종 점수: ${this.score}</p>
-        <button class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700" id="new-game-over-btn">
-          새 게임
-        </button>
-      </div>
-    `;
+  private undo() {
+    if (!this.canUndo || !this.previousState) return;
     
-    document.body.appendChild(overlay);
+    this.board = this.previousState.board.map(row => [...row]);
+    this.score = this.previousState.score;
+    this.tiles = new Map(this.previousState.tiles);
+    this.gameOver = this.previousState.gameOver;
+    this.won = this.previousState.won;
+    this.canUndo = false;
     
-    document.getElementById('new-game-over-btn')?.addEventListener('click', () => {
-      document.body.removeChild(overlay);
-      this.init();
+    this.updateDisplay();
+  }
+
+  private updateDisplay() {
+    if (this.scoreElement) {
+      this.scoreElement.textContent = this.score.toString();
+    }
+    
+    if (this.bestScoreElement && this.score > this.highScore) {
+      this.highScore = this.score;
+      this.bestScoreElement.textContent = this.highScore.toString();
+      this.saveHighScore();
+    }
+
+    const undoBtn = document.getElementById('undo-btn');
+    if (undoBtn) {
+      undoBtn.style.opacity = this.canUndo && this.previousState ? '1' : '0.5';
+    }
+
+    this.renderTiles();
+  }
+
+  private renderTiles() {
+    if (!this.tileContainer) return;
+
+    this.tileContainer.innerHTML = '';
+
+    this.tiles.forEach((tile) => {
+      const tileElement = document.createElement('div');
+      tileElement.className = 'game-tile';
+      tileElement.setAttribute('data-value', tile.value.toString());
+      tileElement.style.cssText = `
+        position: absolute;
+        width: calc(25% - 6px);
+        height: calc(25% - 6px);
+        background: ${this.getTileColor(tile.value)};
+        color: ${tile.value > 4 ? 'white' : this.getThemeColor('text')};
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: ${tile.value > 999 ? '28px' : tile.value > 99 ? '36px' : '48px'};
+        font-weight: bold;
+        border-radius: 6px;
+        transition: all 0.15s ease-in-out;
+        left: ${tile.col * 25}%;
+        top: ${tile.row * 25}%;
+        ${tile.isNew ? 'animation: appear 0.2s ease-in-out;' : ''}
+        ${tile.isMerged ? 'animation: merge 0.2s ease-in-out;' : ''}
+        ${this.shouldShowEffect('shadows') ? 'box-shadow: 0 2px 10px rgba(0,0,0,0.2);' : ''}
+      `;
+      tileElement.textContent = tile.value.toString();
+      
+      this.tileContainer.appendChild(tileElement);
     });
+
+    // Add CSS animations
+    if (!document.getElementById('game-2048-styles')) {
+      const style = document.createElement('style');
+      style.id = 'game-2048-styles';
+      style.textContent = `
+        @keyframes appear {
+          from {
+            opacity: 0;
+            transform: scale(0);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        
+        @keyframes merge {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.2);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  private getTileColor(value: number): string {
+    const colors: {[key: number]: string} = {
+      2: this.getThemeColor('surface'),
+      4: this.getThemeColor('info'),
+      8: this.getThemeColor('success'),
+      16: this.getThemeColor('warning'),
+      32: this.getThemeColor('error'),
+      64: this.getThemeColor('primary'),
+      128: this.getThemeGradient('135deg', 'primary', 'secondary'),
+      256: this.getThemeGradient('135deg', 'secondary', 'accent'),
+      512: this.getThemeGradient('135deg', 'accent', 'primary'),
+      1024: this.getThemeGradient('135deg', 'warning', 'error'),
+      2048: this.getThemeGradient('135deg', 'success', 'primary')
+    };
+    
+    return colors[value] || this.getThemeColor('primary');
+  }
+
+  private showMessage(title: string, text: string) {
+    if (!this.messageElement) return;
+    
+    const titleEl = document.getElementById('message-title');
+    const textEl = document.getElementById('message-text');
+    
+    if (titleEl) titleEl.textContent = title;
+    if (textEl) textEl.textContent = text;
+    
+    this.messageElement.style.display = 'flex';
+  }
+
+  private hideMessage() {
+    if (!this.messageElement) return;
+    
+    this.messageElement.style.display = 'none';
+    this.continueAfterWin = true;
+  }
+
+  public restart(): void {
+    super.restart();
+    this.updateDisplay();
   }
 }

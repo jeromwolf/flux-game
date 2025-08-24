@@ -51,6 +51,10 @@
     "ticTacToe": {
       "name": "三目並べ",
       "description": "3つ並べる戦略ボードゲーム"
+    },
+    "rhythm": {
+      "name": "リズムゲーム",
+      "description": "音楽に合わせてノートを叩くリズムアクションゲーム"
     }
   },
   "ui": {
