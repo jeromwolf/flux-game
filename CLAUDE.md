@@ -191,6 +191,11 @@ localStorage.setItem('new-game-highscore', score.toString());
   - 실시간 업데이트
 - **테마 시스템**: 8개의 내장 테마와 커스터마이징 가능한 색상/효과
 - **12개의 완성된 게임**: DinoRun, WordTower 추가
+- **전체 게임 테마 시스템 적용 완료**: 
+  - BaseGame 클래스를 상속받는 Canvas 기반 게임들
+  - ThemedDOMGame 클래스를 상속받는 DOM 기반 게임들
+  - 모든 게임이 동적 테마 색상, 그라데이션, 효과 지원
+  - 일관된 UI/UX와 향상된 시각 효과
 
 ### 향후 계획
 - **일일 게임 추가**: 매일 새로운 인기 게임 구현
