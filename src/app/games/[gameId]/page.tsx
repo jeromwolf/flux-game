@@ -75,6 +75,12 @@ export default function GamePage() {
           case 'word-tower':
             GameModule = await import('@/lib/games/WordTower');
             break;
+          case 'island-survival':
+            GameModule = await import('@/lib/games/IslandSurvival');
+            break;
+          case 'stack-tower':
+            GameModule = await import('@/lib/games/StackTower');
+            break;
           default:
             throw new Error(`Game ${gameId} not found`);
         }
