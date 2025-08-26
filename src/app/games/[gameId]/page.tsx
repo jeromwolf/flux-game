@@ -81,6 +81,18 @@ export default function GamePage() {
           case 'stack-tower':
             GameModule = await import('@/lib/games/StackTower');
             break;
+          case 'cube-collector-3d':
+            GameModule = await import('@/lib/games/CubeCollector3D');
+            break;
+          case 'liquid-robot':
+            GameModule = await import('@/lib/games/LiquidRobot');
+            break;
+          case 'k-food-rush':
+            GameModule = await import('@/lib/games/KFoodRush');
+            break;
+          case 'seoul-runner':
+            GameModule = await import('@/lib/games/SeoulRunner');
+            break;
           default:
             throw new Error(`Game ${gameId} not found`);
         }

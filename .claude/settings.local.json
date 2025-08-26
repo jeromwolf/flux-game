@@ -26,7 +26,10 @@
       "Bash(npx tailwindcss init:*)",
       "Bash(kill:*)",
       "Bash(git reset:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(true)",
+      "Bash(cp:*)",
+      "Bash(./restart.sh)"
     ],
     "deny": []
   }

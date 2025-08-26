@@ -14,6 +14,7 @@ const games = [
     icon: '🍪',
     category: 'casual',
     status: 'available',
+    releaseDate: '2025-07-15',
   },
   {
     id: '2048',
@@ -22,6 +23,7 @@ const games = [
     icon: '🔢',
     category: 'puzzle',
     status: 'available',
+    releaseDate: '2025-07-16',
   },
   {
     id: 'tetris',
@@ -30,6 +32,7 @@ const games = [
     icon: '🧱',
     category: 'puzzle',
     status: 'available',
+    releaseDate: '2025-07-18',
   },
   {
     id: 'snake',
@@ -38,6 +41,7 @@ const games = [
     icon: '🐍',
     category: 'action',
     status: 'available',
+    releaseDate: '2025-07-20',
   },
   {
     id: 'tic-tac-toe',
@@ -46,6 +50,7 @@ const games = [
     icon: '⭕',
     category: 'strategy',
     status: 'available',
+    releaseDate: '2025-07-22',
   },
   {
     id: 'minesweeper',
@@ -54,6 +59,7 @@ const games = [
     icon: '💣',
     category: 'puzzle',
     status: 'available',
+    releaseDate: '2025-07-25',
   },
   {
     id: 'breakout',
@@ -62,6 +68,7 @@ const games = [
     icon: '🎾',
     category: 'action',
     status: 'available',
+    releaseDate: '2025-07-27',
   },
   {
     id: 'bubble-shooter',
@@ -70,6 +77,7 @@ const games = [
     icon: '🎯',
     category: 'arcade',
     status: 'available',
+    releaseDate: '2025-07-29',
   },
   {
     id: 'flux-jump',
@@ -78,6 +86,7 @@ const games = [
     icon: '🦘',
     category: 'casual',
     status: 'available',
+    releaseDate: '2025-08-02',
   },
   {
     id: 'flappy-flux',
@@ -86,6 +95,7 @@ const games = [
     icon: '🐤',
     category: 'arcade',
     status: 'available',
+    releaseDate: '2025-08-05',
   },
   {
     id: 'dino-run',
@@ -94,6 +104,7 @@ const games = [
     icon: '🦖',
     category: 'action',
     status: 'available',
+    releaseDate: '2025-08-08',
   },
   {
     id: 'word-tower',
@@ -102,6 +113,7 @@ const games = [
     icon: '📚',
     category: 'puzzle',
     status: 'available',
+    releaseDate: '2025-08-10',
   },
   {
     id: 'island-survival',
@@ -110,6 +122,7 @@ const games = [
     icon: '🏝️',
     category: 'strategy',
     status: 'available',
+    releaseDate: '2025-08-15',
   },
   {
     id: 'rhythm',
@@ -118,6 +131,7 @@ const games = [
     icon: '🎵',
     category: 'arcade',
     status: 'available',
+    releaseDate: '2025-08-17',
   },
   {
     id: 'stack-tower',
@@ -126,6 +140,43 @@ const games = [
     icon: '🏗️',
     category: 'arcade',
     status: 'available',
+    releaseDate: '2025-08-19',
+  },
+  {
+    id: 'cube-collector-3d',
+    name: 'Cube Collector 3D',
+    description: 'Collect cubes in 3D space!',
+    icon: '🎲',
+    category: 'arcade',
+    status: 'available',
+    releaseDate: '2025-08-22',
+  },
+  {
+    id: 'liquid-robot',
+    name: 'Liquid Robot',
+    description: 'Transform and complete missions!',
+    icon: '🤖',
+    category: 'action',
+    status: 'available',
+    releaseDate: '2025-08-24',
+  },
+  {
+    id: 'k-food-rush',
+    name: 'K-Food Rush',
+    description: '한국 음식을 만들어 전 세계 손님들을 만족시키세요!',
+    icon: '🍜',
+    category: 'casual',
+    status: 'available',
+    releaseDate: '2025-08-26',
+  },
+  {
+    id: 'seoul-runner',
+    name: 'Seoul Runner',
+    description: 'Run through Seoul collecting Korean cultural items!',
+    icon: '🏃',
+    category: 'action',
+    status: 'available',
+    releaseDate: '2025-08-26',
   },
 ];
 
@@ -157,8 +208,18 @@ export default function Home() {
         totalVisits: global.totalVisitsAllTime
       });
       
-      // Sort games by popularity
+      // Sort games: Today's releases first, then by popularity
+      const today = new Date().toISOString().split('T')[0]; // 2025-08-26 format
       const sorted = [...games].sort((a, b) => {
+        // Check if games are released today
+        const aIsToday = a.releaseDate === today;
+        const bIsToday = b.releaseDate === today;
+        
+        // Today's games always come first
+        if (aIsToday && !bIsToday) return -1;
+        if (!aIsToday && bIsToday) return 1;
+        
+        // If both are today's games or both are not, sort by popularity
         const aIndex = popularGames.indexOf(a.id);
         const bIndex = popularGames.indexOf(b.id);
         if (aIndex === -1 && bIndex === -1) return 0;
@@ -234,6 +295,7 @@ export default function Home() {
           {sortedGames.map((game) => {
             const stats = visitStats[game.id] || { today: 0, total: 0 };
             const trending = isLoaded ? gameAnalyticsV2.getTrendingStatus(game.id) : null;
+            const isNewToday = game.releaseDate === new Date().toISOString().split('T')[0];
             
             return (
             <Link
@@ -253,9 +315,10 @@ export default function Home() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-xl font-bold text-white">{game.name}</h3>
-                    {isLoaded && trending === 'hot' && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">🔥 HOT</span>}
-                    {isLoaded && trending === 'rising' && <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded">📈 RISING</span>}
-                    {isLoaded && trending === 'new' && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">✨ NEW</span>}
+                    {isNewToday && <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded animate-pulse">🆕 NEW TODAY!</span>}
+                    {isLoaded && !isNewToday && trending === 'hot' && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">🔥 HOT</span>}
+                    {isLoaded && !isNewToday && trending === 'rising' && <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded">📈 RISING</span>}
+                    {isLoaded && !isNewToday && trending === 'new' && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">✨ NEW</span>}
                   </div>
                   {game.status !== 'available' && (
                     <span className="text-xs text-gray-500 uppercase">Coming Soon</span>
