@@ -3,14 +3,59 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import ThemeSelector from '@/components/ui/ThemeSelector';
+import { LanguageSelector, type Language } from '@/components/ui/LanguageSelector';
 import { gameAnalyticsV2 } from '@/lib/analytics/GameAnalyticsV2';
 
-// 게임 데이터
+// 게임 데이터 (다국어 지원)
+const gameTranslations = {
+  ko: {
+    'cookie-clicker': { name: '쿠키 클리커', description: '쿠키를 클릭해서 부자되기!' },
+    '2048': { name: '2048', description: '숫자 타일 합치기' },
+    'tetris': { name: '테트리스', description: '블록을 쌓아 줄 없애기' },
+    'snake': { name: '스네이크', description: '뱀을 조종해서 먹이 먹기' },
+    'tic-tac-toe': { name: '틱택토', description: '3x3 격자에서 한 줄 만들기' },
+    'minesweeper': { name: '지뢰찾기', description: '숨겨진 지뢰 피하기' },
+    'breakout': { name: '브레이크아웃', description: '공으로 벽돌 깨기' },
+    'bubble-shooter': { name: '버블 슈터', description: '같은 색깔 버블 터뜨리기' },
+    'flux-jump': { name: '플럭스 점프', description: '장애물을 피해 점프!' },
+    'flappy-flux': { name: '플래피 플럭스', description: '파이프를 피해 날아가기!' },
+    'dino-run': { name: '다이노 런', description: '공룡과 함께 달리기!' },
+    'word-tower': { name: '워드 타워', description: '단어로 탑을 쌓아보세요!' },
+    'island-survival': { name: '무인도 서바이벌', description: '무인도에서 생존하고 탈출하기!' },
+    'rhythm': { name: '리듬 게임', description: '다양한 곡과 난이도로 즐기는 리듬 게임!' },
+    'stack-tower': { name: '스택 타워', description: '블록을 완벽하게 쌓아 최고의 타워를 만드세요!' },
+    'cube-collector-3d': { name: '큐브 수집가 3D', description: '3D 공간에서 큐브를 모으세요!' },
+    'liquid-robot': { name: '리퀴드 로봇', description: '변신하며 미션을 완성하세요!' },
+    'k-food-rush': { name: 'K-Food Rush', description: '한국 음식을 만들어 전 세계 손님들을 만족시키세요!' },
+    'seoul-runner': { name: 'Seoul Runner', description: '서울의 거리를 달리며 한국 문화를 경험하세요!' },
+  },
+  en: {
+    'cookie-clicker': { name: 'Cookie Clicker', description: 'Click cookies to get rich!' },
+    '2048': { name: '2048', description: 'Merge number tiles' },
+    'tetris': { name: 'Tetris', description: 'Stack blocks and clear lines' },
+    'snake': { name: 'Snake', description: 'Control snake to eat food' },
+    'tic-tac-toe': { name: 'Tic Tac Toe', description: 'Make a line in 3x3 grid' },
+    'minesweeper': { name: 'Minesweeper', description: 'Avoid hidden mines' },
+    'breakout': { name: 'Breakout', description: 'Break bricks with ball' },
+    'bubble-shooter': { name: 'Bubble Shooter', description: 'Pop same color bubbles' },
+    'flux-jump': { name: 'Flux Jump', description: 'Jump over obstacles!' },
+    'flappy-flux': { name: 'Flappy Flux', description: 'Fly through pipes!' },
+    'dino-run': { name: 'Dino Run', description: 'Run with dinosaur!' },
+    'word-tower': { name: 'Word Tower', description: 'Build a tower with words!' },
+    'island-survival': { name: 'Island Survival', description: 'Survive and escape from island!' },
+    'rhythm': { name: 'Rhythm Game', description: 'Enjoy rhythm game with various songs!' },
+    'stack-tower': { name: 'Stack Tower', description: 'Stack blocks perfectly to build the highest tower!' },
+    'cube-collector-3d': { name: 'Cube Collector 3D', description: 'Collect cubes in 3D space!' },
+    'liquid-robot': { name: 'Liquid Robot', description: 'Transform and complete missions!' },
+    'k-food-rush': { name: 'K-Food Rush', description: 'Cook Korean food for global customers!' },
+    'seoul-runner': { name: 'Seoul Runner', description: 'Run through Seoul collecting Korean cultural items!' },
+  }
+};
+
+// 게임 기본 데이터
 const games = [
   {
     id: 'cookie-clicker',
-    name: '쿠키 클리커',
-    description: '쿠키를 클릭해서 부자되기!',
     icon: '🍪',
     category: 'casual',
     status: 'available',
@@ -18,8 +63,6 @@ const games = [
   },
   {
     id: '2048',
-    name: '2048',
-    description: '숫자 타일 합치기',
     icon: '🔢',
     category: 'puzzle',
     status: 'available',
@@ -27,8 +70,6 @@ const games = [
   },
   {
     id: 'tetris',
-    name: '테트리스',
-    description: '블록을 쌓아 줄 없애기',
     icon: '🧱',
     category: 'puzzle',
     status: 'available',
@@ -36,8 +77,6 @@ const games = [
   },
   {
     id: 'snake',
-    name: '스네이크',
-    description: '뱀을 조종해서 먹이 먹기',
     icon: '🐍',
     category: 'action',
     status: 'available',
@@ -45,8 +84,6 @@ const games = [
   },
   {
     id: 'tic-tac-toe',
-    name: '틱택토',
-    description: '3x3 격자에서 한 줄 만들기',
     icon: '⭕',
     category: 'strategy',
     status: 'available',
@@ -54,8 +91,6 @@ const games = [
   },
   {
     id: 'minesweeper',
-    name: '지뢰찾기',
-    description: '숨겨진 지뢰 피하기',
     icon: '💣',
     category: 'puzzle',
     status: 'available',
@@ -63,8 +98,6 @@ const games = [
   },
   {
     id: 'breakout',
-    name: '브레이크아웃',
-    description: '공으로 벽돌 깨기',
     icon: '🎾',
     category: 'action',
     status: 'available',
@@ -72,8 +105,6 @@ const games = [
   },
   {
     id: 'bubble-shooter',
-    name: '버블 슈터',
-    description: '같은 색깔 버블 터뜨리기',
     icon: '🎯',
     category: 'arcade',
     status: 'available',
@@ -81,8 +112,6 @@ const games = [
   },
   {
     id: 'flux-jump',
-    name: '플럭스 점프',
-    description: '장애물을 피해 점프!',
     icon: '🦘',
     category: 'casual',
     status: 'available',
@@ -90,8 +119,6 @@ const games = [
   },
   {
     id: 'flappy-flux',
-    name: '플래피 플럭스',
-    description: '파이프를 피해 날아가기!',
     icon: '🐤',
     category: 'arcade',
     status: 'available',
@@ -99,8 +126,6 @@ const games = [
   },
   {
     id: 'dino-run',
-    name: '다이노 런',
-    description: '공룡과 함께 달리기!',
     icon: '🦖',
     category: 'action',
     status: 'available',
@@ -108,8 +133,6 @@ const games = [
   },
   {
     id: 'word-tower',
-    name: '워드 타워',
-    description: '단어로 탑을 쌓아보세요!',
     icon: '📚',
     category: 'puzzle',
     status: 'available',
@@ -117,8 +140,6 @@ const games = [
   },
   {
     id: 'island-survival',
-    name: '무인도 서바이벌',
-    description: '무인도에서 생존하고 탈출하기!',
     icon: '🏝️',
     category: 'strategy',
     status: 'available',
@@ -126,8 +147,6 @@ const games = [
   },
   {
     id: 'rhythm',
-    name: '리듬 게임',
-    description: '다양한 곡과 난이도로 즐기는 리듬 게임!',
     icon: '🎵',
     category: 'arcade',
     status: 'available',
@@ -135,8 +154,6 @@ const games = [
   },
   {
     id: 'stack-tower',
-    name: 'Stack Tower',
-    description: 'Stack blocks perfectly to build the highest tower!',
     icon: '🏗️',
     category: 'arcade',
     status: 'available',
@@ -144,8 +161,6 @@ const games = [
   },
   {
     id: 'cube-collector-3d',
-    name: 'Cube Collector 3D',
-    description: 'Collect cubes in 3D space!',
     icon: '🎲',
     category: 'arcade',
     status: 'available',
@@ -153,8 +168,6 @@ const games = [
   },
   {
     id: 'liquid-robot',
-    name: 'Liquid Robot',
-    description: 'Transform and complete missions!',
     icon: '🤖',
     category: 'action',
     status: 'available',
@@ -162,8 +175,6 @@ const games = [
   },
   {
     id: 'k-food-rush',
-    name: 'K-Food Rush',
-    description: '한국 음식을 만들어 전 세계 손님들을 만족시키세요!',
     icon: '🍜',
     category: 'casual',
     status: 'available',
@@ -171,8 +182,6 @@ const games = [
   },
   {
     id: 'seoul-runner',
-    name: 'Seoul Runner',
-    description: 'Run through Seoul collecting Korean cultural items!',
     icon: '🏃',
     category: 'action',
     status: 'available',
@@ -185,6 +194,7 @@ export default function Home() {
   const [visitStats, setVisitStats] = useState<{[key: string]: {today: number, total: number}}>({});
   const [globalStats, setGlobalStats] = useState({ todayVisits: 0, totalVisits: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
+  const [language, setLanguage] = useState<Language>('ko');
 
   useEffect(() => {
     // Load analytics data
@@ -252,7 +262,10 @@ export default function Home() {
             <div className="text-cyan-400 text-xs">AI GAMING</div>
           </div>
         </div>
-        <ThemeSelector />
+        <div className="flex items-center gap-3">
+          <LanguageSelector onLanguageChange={setLanguage} />
+          <ThemeSelector />
+        </div>
       </nav>
 
       {/* Hero Section */}
@@ -263,10 +276,10 @@ export default function Home() {
           </span>
         </h1>
         <p className="text-2xl text-gray-300 mb-4">
-          Next-Gen Gaming Platform
+          {language === 'ko' ? '차세대 게임 플랫폼' : 'Next-Gen Gaming Platform'}
         </p>
         <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-8">
-          Experience the future of gaming with AI-powered mechanics
+          {language === 'ko' ? 'AI 기반 메커닉으로 게임의 미래를 경험하세요' : 'Experience the future of gaming with AI-powered mechanics'}
         </p>
         
         {/* Global Stats */}
@@ -275,13 +288,13 @@ export default function Home() {
             <div className="text-3xl font-bold text-cyan-400 h-10 flex items-center justify-center">
               {isLoaded ? globalStats.todayVisits : '0'}
             </div>
-            <div className="text-sm text-gray-400">오늘 방문</div>
+            <div className="text-sm text-gray-400">{language === 'ko' ? '오늘 방문' : 'Today Visits'}</div>
           </div>
           <div className="bg-gray-900 border border-gray-800 rounded-lg px-6 py-4 min-w-[120px]">
             <div className="text-3xl font-bold text-purple-500 h-10 flex items-center justify-center">
               {isLoaded ? globalStats.totalVisits : '0'}
             </div>
-            <div className="text-sm text-gray-400">전체 방문</div>
+            <div className="text-sm text-gray-400">{language === 'ko' ? '전체 방문' : 'Total Visits'}</div>
           </div>
         </div>
       </header>
@@ -289,7 +302,7 @@ export default function Home() {
       {/* Games Grid */}
       <main className="container mx-auto px-6 py-12">
         <h2 className="text-3xl font-bold mb-8 text-center text-white">
-          Available Games
+          {language === 'ko' ? '사용 가능한 게임' : 'Available Games'}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {sortedGames.map((game) => {
@@ -314,7 +327,7 @@ export default function Home() {
                 <span className="text-4xl">{game.icon}</span>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-bold text-white">{game.name}</h3>
+                    <h3 className="text-xl font-bold text-white">{gameTranslations[language][game.id]?.name || game.id}</h3>
                     {isNewToday && <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded animate-pulse">🆕 NEW TODAY!</span>}
                     {isLoaded && !isNewToday && trending === 'hot' && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">🔥 HOT</span>}
                     {isLoaded && !isNewToday && trending === 'rising' && <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded">📈 RISING</span>}
@@ -325,11 +338,11 @@ export default function Home() {
                   )}
                 </div>
               </div>
-              <p className="text-gray-400 text-sm mb-3">{game.description}</p>
+              <p className="text-gray-400 text-sm mb-3">{gameTranslations[language][game.id]?.description || ''}</p>
               {game.status === 'available' && isLoaded && (
                 <div className="flex gap-4 text-xs text-gray-500">
-                  <span>오늘: {stats.today}</span>
-                  <span>전체: {stats.total}</span>
+                  <span>{language === 'ko' ? '오늘' : 'Today'}: {stats.today}</span>
+                  <span>{language === 'ko' ? '전체' : 'Total'}: {stats.total}</span>
                 </div>
               )}
             </Link>

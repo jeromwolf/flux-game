@@ -4,6 +4,65 @@ export default class KFoodRush {
   private ctx: CanvasRenderingContext2D | null = null;
   private animationId: number | null = null;
   private lastTime: number = 0;
+  private language: 'ko' | 'en' = 'ko';
+  
+  // 언어별 텍스트
+  private texts = {
+    ko: {
+      score: '점수',
+      level: '레벨',
+      combo: '콤보',
+      won: '원',
+      waitingOrder: '주문을 기다리는 중...',
+      gameOver: '게임 오버!',
+      finalRevenue: '최종 매출',
+      levelReached: '레벨',
+      achieved: '달성',
+      tryAgain: '다시 도전하기',
+      gameStart: '게임 시작',
+      subtitle: '한국 음식을 만들어 전 세계 손님들을 만족시키세요!',
+      instruction: '재료를 순서대로 클릭해서 요리를 완성하세요.',
+      // 재료
+      rice: '밥',
+      seaweed: '김',
+      beef: '소고기',
+      vegetables: '야채',
+      sauce: '소스',
+      riceCake: '떡',
+      // 음식 이름
+      kimbap: '김밥',
+      tteokbokki: '떡볶이',
+      bulgogi: '불고기',
+      bibimbap: '비빔밥'
+    },
+    en: {
+      score: 'Score',
+      level: 'Level',
+      combo: 'Combo',
+      won: 'won',
+      waitingOrder: 'Waiting for order...',
+      gameOver: 'Game Over!',
+      finalRevenue: 'Final Revenue',
+      levelReached: 'Level',
+      achieved: 'Reached',
+      tryAgain: 'Try Again',
+      gameStart: 'Start Game',
+      subtitle: 'Cook Korean food for customers around the world!',
+      instruction: 'Click ingredients in order to complete the dish.',
+      // 재료
+      rice: 'Rice',
+      seaweed: 'Seaweed',
+      beef: 'Beef',
+      vegetables: 'Vegetables',
+      sauce: 'Sauce',
+      riceCake: 'Rice Cake',
+      // 음식 이름
+      kimbap: 'Kimbap',
+      tteokbokki: 'Tteokbokki',
+      bulgogi: 'Bulgogi',
+      bibimbap: 'Bibimbap'
+    }
+  };
   
   // 게임 상태
   private score: number = 0;
@@ -22,32 +81,28 @@ export default class KFoodRush {
       emoji: '🍙', 
       ingredients: ['rice', 'seaweed', 'vegetables'],
       time: 10,
-      price: 3000,
-      display: '김밥 🍙'
+      price: 3000
     },
     tteokbokki: { 
       name: '떡볶이', 
-      emoji: '🌶️', 
+      emoji: '🌶️🍡', 
       ingredients: ['rice_cake', 'sauce', 'vegetables'],
       time: 8,
-      price: 4000,
-      display: '떡볶이 🌶️🍡'
+      price: 4000
     },
     bulgogi: { 
       name: '불고기', 
-      emoji: '🥩', 
+      emoji: '🥩🔥', 
       ingredients: ['beef', 'sauce', 'vegetables'],
       time: 12,
-      price: 8000,
-      display: '불고기 🥩🔥'
+      price: 8000
     },
     bibimbap: {
       name: '비빔밥',
-      emoji: '🍲',
+      emoji: '🍚🥗',
       ingredients: ['rice', 'vegetables', 'sauce'],
       time: 15,
-      price: 7000,
-      display: '비빔밥 🍚🥗'
+      price: 7000
     }
   };
   
@@ -65,6 +120,11 @@ export default class KFoodRush {
   
   mount(container: HTMLElement): void {
     this.container = container;
+    // Load language preference
+    const savedLanguage = localStorage.getItem('flux-game-language');
+    if (savedLanguage === 'ko' || savedLanguage === 'en') {
+      this.language = savedLanguage;
+    }
     this.initializeGame();
   }
   
@@ -76,6 +136,7 @@ export default class KFoodRush {
     if (!this.container) return;
     
     // HTML 구조
+    const t = this.texts[this.language];
     this.container.innerHTML = `
       <div style="width: 100%; height: 600px; position: relative; background: linear-gradient(to bottom, #fff5e6 0%, #ffe6cc 100%); overflow: hidden;">
         <!-- 상단 UI -->
@@ -83,13 +144,13 @@ export default class KFoodRush {
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; gap: 20px;">
               <div style="font-size: 20px; font-weight: bold; color: #333;">
-                점수: <span id="score" style="color: #ff6b6b;">0</span>원
+                ${t.score}: <span id="score" style="color: #ff6b6b;">0</span>${t.won}
               </div>
               <div style="font-size: 18px; color: #666;">
-                레벨: <span id="level">1</span>
+                ${t.level}: <span id="level">1</span>
               </div>
               <div style="font-size: 18px; color: #666;">
-                콤보: <span id="combo" style="color: #4CAF50;">x1</span>
+                ${t.combo}: <span id="combo" style="color: #4CAF50;">x1</span>
               </div>
             </div>
             <div style="font-size: 18px;">
@@ -101,7 +162,7 @@ export default class KFoodRush {
         <!-- 주문 영역 -->
         <div id="order-area" style="position: absolute; top: 60px; left: 10px; right: 10px; height: 120px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px;">
           <div id="current-order" style="text-align: center;">
-            <div style="font-size: 24px; margin-bottom: 10px;">주문을 기다리는 중...</div>
+            <div style="font-size: 24px; margin-bottom: 10px;">${t.waitingOrder}</div>
           </div>
         </div>
         
@@ -111,38 +172,38 @@ export default class KFoodRush {
         <!-- 재료 버튼 영역 -->
         <div id="ingredient-buttons" style="position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: rgba(255,255,255,0.9); border-top: 3px solid #ff6b6b; padding: 10px; overflow-x: auto;">
           <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button class="ingredient-btn" data-ingredient="rice" style="padding: 10px 20px; font-size: 16px; background: #FFF3E0; border: 2px solid #FFB74D; border-radius: 20px; cursor: pointer;">
-              🍚 밥
+            <button class="ingredient-btn" data-ingredient="rice" style="padding: 10px 20px; font-size: 16px; background: #FFF3E0; border: 2px solid #FFB74D; border-radius: 20px; cursor: pointer; color: #333; font-weight: bold;">
+              🍚 ${t.rice}
             </button>
-            <button class="ingredient-btn" data-ingredient="seaweed" style="padding: 10px 20px; font-size: 16px; background: #E8F5E9; border: 2px solid #66BB6A; border-radius: 20px; cursor: pointer;">
-              🌿 김
+            <button class="ingredient-btn" data-ingredient="seaweed" style="padding: 10px 20px; font-size: 16px; background: #E8F5E9; border: 2px solid #66BB6A; border-radius: 20px; cursor: pointer; color: #333; font-weight: bold;">
+              🌿 ${t.seaweed}
             </button>
-            <button class="ingredient-btn" data-ingredient="beef" style="padding: 10px 20px; font-size: 16px; background: #FFEBEE; border: 2px solid #EF5350; border-radius: 20px; cursor: pointer;">
-              🥩 소고기
+            <button class="ingredient-btn" data-ingredient="beef" style="padding: 10px 20px; font-size: 16px; background: #FFEBEE; border: 2px solid #EF5350; border-radius: 20px; cursor: pointer; color: #333; font-weight: bold;">
+              🥩 ${t.beef}
             </button>
-            <button class="ingredient-btn" data-ingredient="vegetables" style="padding: 10px 20px; font-size: 16px; background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 20px; cursor: pointer;">
-              🥗 야채
+            <button class="ingredient-btn" data-ingredient="vegetables" style="padding: 10px 20px; font-size: 16px; background: #F3E5F5; border: 2px solid #AB47BC; border-radius: 20px; cursor: pointer; color: #333; font-weight: bold;">
+              🥗 ${t.vegetables}
             </button>
-            <button class="ingredient-btn" data-ingredient="sauce" style="padding: 10px 20px; font-size: 16px; background: #FCE4EC; border: 2px solid #F06292; border-radius: 20px; cursor: pointer;">
-              🥫 소스
+            <button class="ingredient-btn" data-ingredient="sauce" style="padding: 10px 20px; font-size: 16px; background: #FCE4EC; border: 2px solid #F06292; border-radius: 20px; cursor: pointer; color: #333; font-weight: bold;">
+              🥫 ${t.sauce}
             </button>
-            <button class="ingredient-btn" data-ingredient="rice_cake" style="padding: 10px 20px; font-size: 16px; background: #FFF8E1; border: 2px solid #FFD54F; border-radius: 20px; cursor: pointer;">
-              🍡 떡
+            <button class="ingredient-btn" data-ingredient="rice_cake" style="padding: 10px 20px; font-size: 16px; background: #FFF8E1; border: 2px solid #FFD54F; border-radius: 20px; cursor: pointer; color: #333; font-weight: bold;">
+              🍡 ${t.riceCake}
             </button>
           </div>
         </div>
         
         <!-- 게임 오버 화면 -->
         <div id="game-over" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
-          <h2 style="color: #ff6b6b; font-size: 36px; margin: 0 0 20px 0;">게임 오버!</h2>
+          <h2 style="color: #ff6b6b; font-size: 36px; margin: 0 0 20px 0;">${t.gameOver}</h2>
           <div style="font-size: 24px; color: #333; margin-bottom: 10px;">
-            최종 매출: <span id="final-score" style="color: #ff6b6b; font-weight: bold;">0</span>원
+            ${t.finalRevenue}: <span id="final-score" style="color: #ff6b6b; font-weight: bold;">0</span>${t.won}
           </div>
           <div style="font-size: 18px; color: #666; margin-bottom: 30px;">
-            레벨 <span id="final-level">1</span> 달성
+            ${t.levelReached} <span id="final-level">1</span> ${t.achieved}
           </div>
           <button id="restart-btn" style="padding: 15px 30px; font-size: 20px; background: #ff6b6b; color: white; border: none; border-radius: 30px; cursor: pointer;">
-            다시 도전하기
+            ${t.tryAgain}
           </button>
         </div>
         
@@ -151,11 +212,11 @@ export default class KFoodRush {
           <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px;">
             <h1 style="color: #ff6b6b; font-size: 48px; margin: 0 0 20px 0;">🍜 K-Food Rush</h1>
             <p style="font-size: 18px; color: #666; margin-bottom: 30px;">
-              한국 음식을 만들어 전 세계 손님들을 만족시키세요!<br>
-              재료를 순서대로 클릭해서 요리를 완성하세요.
+              ${t.subtitle}<br>
+              ${t.instruction}
             </p>
             <button id="start-btn" style="padding: 15px 40px; font-size: 24px; background: #ff6b6b; color: white; border: none; border-radius: 30px; cursor: pointer;">
-              게임 시작
+              ${t.gameStart}
             </button>
           </div>
         </div>
@@ -243,12 +304,15 @@ export default class KFoodRush {
       (ing: string) => !this.completedIngredients.includes(ing)
     );
     
+    const t = this.texts[this.language];
+    const foodName = t[this.currentOrder.key as keyof typeof t] || food.name;
+    
     orderDiv.innerHTML = `
-      <div style="font-size: 40px; margin-bottom: 10px;">${food.display || food.name}</div>
+      <div style="font-size: 40px; margin-bottom: 10px; color: #333;">${foodName} ${food.emoji}</div>
       <div style="font-size: 16px; color: #666;">
-        남은 재료: ${remainingIngredients.length}개 | 
-        시간: <span style="color: ${this.currentOrder.timeLeft < 10 ? '#ff0000' : '#333'};">
-          ${Math.ceil(this.currentOrder.timeLeft)}초
+        ${this.language === 'ko' ? '남은 재료' : 'Remaining'}: ${remainingIngredients.length}${this.language === 'ko' ? '개' : ''} | 
+        ${this.language === 'ko' ? '시간' : 'Time'}: <span style="color: ${this.currentOrder.timeLeft < 10 ? '#ff0000' : '#333'};">
+          ${Math.ceil(this.currentOrder.timeLeft)}${this.language === 'ko' ? '초' : 's'}
         </span>
       </div>
       <div style="margin-top: 10px; display: flex; justify-content: center; gap: 5px;">
