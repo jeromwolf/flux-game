@@ -28,6 +28,35 @@ export default class Game2048 extends ThemedDOMGame {
   private canUndo = true;
   private combo = 0;
   private lastMergeTime = 0;
+  private language: 'ko' | 'en' = 'ko';
+  
+  // 다국어 텍스트
+  private texts = {
+    ko: {
+      newGame: '새 게임',
+      undo: '되돌리기',
+      score: '점수',
+      best: '최고기록',
+      gameOver: '게임 오버!',
+      won: '승리!',
+      continue: '계속하기',
+      tryAgain: '다시 도전',
+      instruction: '타일을 합쳐 2048을 만드세요!',
+      controlHint: '화살표 또는 스와이프로 타일을 이동하세요'
+    },
+    en: {
+      newGame: 'New Game',
+      undo: 'Undo',
+      score: 'Score',
+      best: 'Best',
+      gameOver: 'Game Over!',
+      won: 'You Win!',
+      continue: 'Continue',
+      tryAgain: 'Try Again',
+      instruction: 'Join the tiles to get 2048!',
+      controlHint: 'Use arrow keys or swipe to move tiles'
+    }
+  };
 
   // DOM elements
   private boardElement: HTMLElement | null = null;
@@ -46,6 +75,12 @@ export default class Game2048 extends ThemedDOMGame {
 
   protected setupGame(): void {
     if (!this.container) return;
+    
+    // Load language preference
+    const savedLanguage = localStorage.getItem('flux-game-language');
+    if (savedLanguage === 'ko' || savedLanguage === 'en') {
+      this.language = savedLanguage;
+    }
 
     this.createGameHTML();
     this.bindElements();
@@ -80,6 +115,8 @@ export default class Game2048 extends ThemedDOMGame {
 
   private createGameHTML(): void {
     if (!this.container) return;
+    
+    const t = this.texts[this.language];
 
     this.container.innerHTML = `
       <div class="game-2048" style="${this.getThemedContainerStyles()}">
@@ -98,16 +135,16 @@ export default class Game2048 extends ThemedDOMGame {
                     background-clip: text;
                   ">2048</h1>
                   <p style="margin: 0; color: ${this.getThemeColor('textSecondary')};">
-                    타일을 합쳐 2048을 만드세요!
+                    ${t.instruction}
                   </p>
                 </div>
                 <div style="display: flex; gap: 16px;">
                   <div style="text-align: center;">
-                    <div style="font-size: 14px; color: ${this.getThemeColor('textSecondary')};">점수</div>
+                    <div style="font-size: 14px; color: ${this.getThemeColor('textSecondary')};">${t.score}</div>
                     <div id="current-score" style="font-size: 24px; font-weight: bold; color: ${this.getThemeColor('text')};">0</div>
                   </div>
                   <div style="text-align: center;">
-                    <div style="font-size: 14px; color: ${this.getThemeColor('textSecondary')};">최고기록</div>
+                    <div style="font-size: 14px; color: ${this.getThemeColor('textSecondary')};">${t.best}</div>
                     <div id="best-score" style="font-size: 24px; font-weight: bold; color: ${this.getThemeColor('primary')};">${this.highScore}</div>
                   </div>
                 </div>
@@ -115,10 +152,10 @@ export default class Game2048 extends ThemedDOMGame {
               
               <div style="display: flex; gap: 12px;">
                 <button id="new-game-btn" style="${this.getThemedButtonStyles('primary')}">
-                  새 게임
+                  ${t.newGame}
                 </button>
                 <button id="undo-btn" style="${this.getThemedButtonStyles('secondary')}">
-                  되돌리기
+                  ${t.undo}
                 </button>
               </div>
             </div>
@@ -172,7 +209,7 @@ export default class Game2048 extends ThemedDOMGame {
                 margin-bottom: 24px;
               "></p>
               <button id="continue-btn" style="${this.getThemedButtonStyles('primary')}">
-                계속하기
+                ${t.continue}
               </button>
             </div>
             
@@ -182,7 +219,7 @@ export default class Game2048 extends ThemedDOMGame {
               color: ${this.getThemeColor('textSecondary')};
               font-size: 14px;
             ">
-              화살표 키 또는 스와이프로 타일을 이동하세요
+              ${t.controlHint}
             </div>
           </div>
         </div>
@@ -328,10 +365,12 @@ export default class Game2048 extends ThemedDOMGame {
       this.updateDisplay();
       
       if (this.checkWin() && !this.continueAfterWin) {
-        this.showMessage('승리!', `점수: ${this.score}`);
+        const t = this.texts[this.language];
+        this.showMessage(t.won, `${t.score}: ${this.score}`);
         this.won = true;
       } else if (this.checkGameOver()) {
-        this.showMessage('게임 오버', `최종 점수: ${this.score}`);
+        const t = this.texts[this.language];
+        this.showMessage(t.gameOver, `${t.score}: ${this.score}`);
         this.gameOver = true;
       }
     } else {

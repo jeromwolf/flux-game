@@ -211,10 +211,16 @@ export default class KFoodRush {
         <div id="start-screen" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center;">
           <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px;">
             <h1 style="color: #ff6b6b; font-size: 48px; margin: 0 0 20px 0;">🍜 K-Food Rush</h1>
-            <p style="font-size: 18px; color: #666; margin-bottom: 30px;">
+            <p style="font-size: 18px; color: #666; margin-bottom: 20px;">
               ${t.subtitle}<br>
               ${t.instruction}
             </p>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #ff6b6b;">
+              <p style="font-size: 16px; color: #333; margin: 0;">
+                <span style="color: #ff6b6b; font-weight: bold;">⚠️ ${this.language === 'ko' ? '주의' : 'Important'}:</span> 
+                ${this.language === 'ko' ? '재료를 정확한 순서대로 클릭하세요!' : 'Click ingredients in the exact order shown!'}
+              </p>
+            </div>
             <button id="start-btn" style="padding: 15px 40px; font-size: 24px; background: #ff6b6b; color: white; border: none; border-radius: 30px; cursor: pointer;">
               ${t.gameStart}
             </button>
@@ -252,15 +258,14 @@ export default class KFoodRush {
       this.startGame();
     });
     
-    // 재료 버튼들
-    const ingredientBtns = this.container?.querySelectorAll('.ingredient-btn');
-    ingredientBtns?.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const ingredient = (e.target as HTMLElement).dataset.ingredient;
-        if (ingredient) {
-          this.selectIngredient(ingredient);
-        }
-      });
+    // 재료 버튼들 - 이벤트 위임 사용
+    const ingredientArea = this.container?.querySelector('#ingredient-buttons');
+    ingredientArea?.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('.ingredient-btn') as HTMLElement;
+      if (btn && btn.dataset.ingredient) {
+        this.selectIngredient(btn.dataset.ingredient);
+      }
     });
     
     // 터치 컨트롤
@@ -315,16 +320,36 @@ export default class KFoodRush {
           ${Math.ceil(this.currentOrder.timeLeft)}${this.language === 'ko' ? '초' : 's'}
         </span>
       </div>
-      <div style="margin-top: 10px; display: flex; justify-content: center; gap: 5px;">
-        ${food.ingredients.map((ing: string) => 
-          `<div style="
-            padding: 5px 10px; 
-            background: ${this.completedIngredients.includes(ing) ? '#4CAF50' : '#ddd'}; 
-            color: white; 
-            border-radius: 15px;
-            font-size: 14px;
-          ">✓</div>`
-        ).join('')}
+      <div style="margin-top: 10px;">
+        <div style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: bold;">
+          ${this.language === 'ko' ? '재료 순서:' : 'Ingredient Order:'}
+        </div>
+        <div style="display: flex; justify-content: center; gap: 8px; align-items: center;">
+          ${food.ingredients.map((ing: string, index: number) => {
+            const ingredientName = this.language === 'ko' 
+              ? (ing === 'rice' ? '밥' : ing === 'seaweed' ? '김' : ing === 'beef' ? '소고기' : ing === 'vegetables' ? '야채' : ing === 'sauce' ? '소스' : '떡')
+              : (ing === 'rice' ? 'Rice' : ing === 'seaweed' ? 'Seaweed' : ing === 'beef' ? 'Beef' : ing === 'vegetables' ? 'Vegetables' : ing === 'sauce' ? 'Sauce' : 'Rice Cake');
+            const emoji = ing === 'rice' ? '🍚' : ing === 'seaweed' ? '🌿' : ing === 'beef' ? '🥩' : ing === 'vegetables' ? '🥗' : ing === 'sauce' ? '🥫' : '🍡';
+            
+            return `
+              ${index > 0 ? '<span style="color: #999; font-size: 20px; margin: 0 5px;">→</span>' : ''}
+              <div style="
+                padding: 8px 12px; 
+                background: ${this.completedIngredients.includes(ing) ? '#4CAF50' : '#f5f5f5'}; 
+                color: ${this.completedIngredients.includes(ing) ? 'white' : '#333'}; 
+                border: 2px solid ${this.completedIngredients.includes(ing) ? '#4CAF50' : '#ddd'};
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+              ">
+                ${emoji} ${ingredientName}
+              </div>
+            `;
+          }).join('')}
+        </div>
       </div>
     `;
   }
@@ -361,6 +386,7 @@ export default class KFoodRush {
     
     this.updateOrderUI();
   }
+  
   
   private completeOrder(): void {
     if (!this.currentOrder) return;
@@ -429,6 +455,8 @@ export default class KFoodRush {
     this.animationId = requestAnimationFrame(this.gameLoop);
   };
   
+  
+  
   private draw(): void {
     if (!this.ctx || !this.canvas) return;
     
@@ -476,6 +504,7 @@ export default class KFoodRush {
     }
   }
   
+
   private endGame(): void {
     this.gameOver = true;
     
@@ -541,6 +570,7 @@ export default class KFoodRush {
           oscillator.start(now);
           oscillator.stop(now + 0.5);
           break;
+          
       }
     } catch (error) {
       console.warn('Sound playback failed:', error);
