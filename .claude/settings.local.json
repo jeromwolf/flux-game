@@ -29,7 +29,9 @@
       "Bash(rg:*)",
       "Bash(true)",
       "Bash(cp:*)",
-      "Bash(./restart.sh)"
+      "Bash(./restart.sh)",
+      "Bash(find:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { RhythmGameEnhanced } from '@/lib/games/RhythmGameEnhanced';
 import { gameAnalyticsV2 } from '@/lib/analytics/GameAnalyticsV2';
+import { type Language } from '@/components/ui/LanguageSelector';
 
 interface Song {
   id: string;
@@ -39,6 +40,74 @@ export default function RhythmGameEnhancedPage() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [songs, setSongs] = useState<Song[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [language, setLanguage] = useState<Language>('ko');
+
+  const texts = {
+    ko: {
+      backToMain: '메인으로',
+      title: '🎵 리듬 게임',
+      score: '점수',
+      selectSong: '곡 선택',
+      selectDifficulty: '난이도 선택',
+      startGame: '게임 시작',
+      leaderboard: '리더보드',
+      noRecords: '아직 기록이 없습니다',
+      combo: '콤보',
+      accuracy: '정확도',
+      controls: '조작법',
+      noteTypes: '노트 타입',
+      normalNote: '일반 노트',
+      holdNote: '홀드 노트',
+      slideNote: '슬라이드 노트',
+      normalNoteDesc: '타이밍에 맞춰 누르기',
+      holdNoteDesc: '길게 누르기',
+      slideNoteDesc: '특별 점수',
+      pause: '일시정지',
+      resume: '계속하기',
+      restart: '다시 시작',
+      songSelect: '곡 선택',
+      lanes: '각 레인의 노트 치기',
+      pauseKey: '일시정지',
+      touch: '모바일에서 레인 터치',
+      seconds: '초'
+    },
+    en: {
+      backToMain: 'Back to Main',
+      title: '🎵 Rhythm Game',
+      score: 'Score',
+      selectSong: 'Select Song',
+      selectDifficulty: 'Select Difficulty',
+      startGame: 'Start Game',
+      leaderboard: 'Leaderboard',
+      noRecords: 'No records yet',
+      combo: 'Combo',
+      accuracy: 'Accuracy',
+      controls: 'Controls',
+      noteTypes: 'Note Types',
+      normalNote: 'Normal Note',
+      holdNote: 'Hold Note',
+      slideNote: 'Slide Note',
+      normalNoteDesc: 'Press at the right timing',
+      holdNoteDesc: 'Hold down',
+      slideNoteDesc: 'Special points',
+      pause: 'Pause',
+      resume: 'Resume',
+      restart: 'Restart',
+      songSelect: 'Song Select',
+      lanes: 'Hit notes in each lane',
+      pauseKey: 'Pause',
+      touch: 'Touch lanes on mobile',
+      seconds: 'sec'
+    }
+  };
+
+  useEffect(() => {
+    // Load language from localStorage
+    const savedLanguage = localStorage.getItem('flux-game-language') as Language;
+    if (savedLanguage && (savedLanguage === 'ko' || savedLanguage === 'en')) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
 
   useEffect(() => {
     gameAnalyticsV2.recordGameVisit('rhythm');
@@ -107,18 +176,18 @@ export default function RhythmGameEnhancedPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <Link href="/" className="text-[#00ff88] hover:underline flex items-center gap-2">
-            <span>←</span> 메인으로
+            <span>←</span> {texts[language].backToMain}
           </Link>
-          <h1 className="text-4xl font-bold text-center">🎵 리듬 게임</h1>
+          <h1 className="text-4xl font-bold text-center">{texts[language].title}</h1>
           <div className="text-2xl font-bold text-[#00ff88]">
-            {isPlaying ? `점수: ${score}` : ''}
+            {isPlaying ? `${texts[language].score}: ${score}` : ''}
           </div>
         </div>
         
         {showSongSelect ? (
           <div className="max-w-4xl mx-auto">
             <div className="bg-[#16213e] rounded-lg p-6 shadow-xl mb-6">
-              <h2 className="text-2xl font-bold mb-4 text-[#e94560]">곡 선택</h2>
+              <h2 className="text-2xl font-bold mb-4 text-[#e94560]">{texts[language].selectSong}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {songs.map((song) => (
                   <div
@@ -132,13 +201,13 @@ export default function RhythmGameEnhancedPage() {
                   >
                     <h3 className="text-lg font-bold">{song.name}</h3>
                     <p className="text-sm opacity-80">{song.artist}</p>
-                    <p className="text-xs mt-1">BPM: {song.bpm} | {Math.floor(song.duration / 1000)}초</p>
+                    <p className="text-xs mt-1">BPM: {song.bpm} | {Math.floor(song.duration / 1000)}{texts[language].seconds}</p>
                   </div>
                 ))}
               </div>
               
               <div className="mb-6">
-                <h3 className="text-lg font-bold mb-2 text-[#00ff88]">난이도 선택</h3>
+                <h3 className="text-lg font-bold mb-2 text-[#00ff88]">{texts[language].selectDifficulty}</h3>
                 <div className="flex gap-2">
                   {['easy', 'normal', 'hard', 'expert'].map((diff) => {
                     const song = songs.find(s => s.id === selectedSong);
@@ -170,20 +239,20 @@ export default function RhythmGameEnhancedPage() {
                   disabled={!selectedSong}
                   className="flex-1 bg-[#00ff88] text-[#0f0f1e] py-4 px-6 rounded-lg font-bold text-xl hover:bg-[#00cc66] transition-colors disabled:bg-gray-600 disabled:text-gray-400"
                 >
-                  게임 시작
+                  {texts[language].startGame}
                 </button>
                 <button
                   onClick={() => setShowLeaderboard(!showLeaderboard)}
                   className="px-6 py-4 bg-[#e94560] text-white rounded-lg font-bold hover:bg-[#c73650] transition-colors"
                 >
-                  리더보드
+                  {texts[language].leaderboard}
                 </button>
               </div>
             </div>
             
             {showLeaderboard && (
               <div className="bg-[#16213e] rounded-lg p-6 shadow-xl">
-                <h2 className="text-2xl font-bold mb-4 text-[#e94560]">리더보드</h2>
+                <h2 className="text-2xl font-bold mb-4 text-[#e94560]">{texts[language].leaderboard}</h2>
                 <div className="space-y-2">
                   {leaderboard.length > 0 ? (
                     leaderboard.map((entry, index) => (
@@ -198,13 +267,13 @@ export default function RhythmGameEnhancedPage() {
                         <div className="text-right">
                           <div className="text-xl font-bold">{entry.score.toLocaleString()}</div>
                           <div className="text-sm text-gray-400">
-                            콤보: {entry.combo} | 정확도: {entry.accuracy}%
+                            {texts[language].combo}: {entry.combo} | {texts[language].accuracy}: {entry.accuracy}%
                           </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-center text-gray-400">아직 기록이 없습니다</p>
+                    <p className="text-center text-gray-400">{texts[language].noRecords}</p>
                   )}
                 </div>
               </div>
@@ -225,20 +294,20 @@ export default function RhythmGameEnhancedPage() {
             
             <div className="space-y-6">
               <div className="bg-[#16213e] rounded-lg p-6 shadow-xl">
-                <h2 className="text-2xl font-bold mb-4 text-[#e94560]">조작법</h2>
+                <h2 className="text-2xl font-bold mb-4 text-[#e94560]">{texts[language].controls}</h2>
                 <div className="space-y-2 text-gray-300">
-                  <p><strong className="text-[#00ff88]">D, F, J, K</strong> - 각 레인의 노트 치기</p>
-                  <p><strong className="text-[#00ff88]">Space</strong> - 일시정지</p>
-                  <p><strong className="text-[#00ff88]">터치</strong> - 모바일에서 레인 터치</p>
+                  <p><strong className="text-[#00ff88]">D, F, J, K</strong> - {texts[language].lanes}</p>
+                  <p><strong className="text-[#00ff88]">Space</strong> - {texts[language].pauseKey}</p>
+                  <p><strong className="text-[#00ff88]">{language === 'ko' ? '터치' : 'Touch'}</strong> - {texts[language].touch}</p>
                 </div>
               </div>
               
               <div className="bg-[#16213e] rounded-lg p-6 shadow-xl">
-                <h2 className="text-2xl font-bold mb-4 text-[#e94560]">노트 타입</h2>
+                <h2 className="text-2xl font-bold mb-4 text-[#e94560]">{texts[language].noteTypes}</h2>
                 <ul className="list-disc list-inside space-y-2 text-gray-300">
-                  <li><span className="text-[#00ff88]">일반 노트</span> - 타이밍에 맞춰 누르기</li>
-                  <li><span className="text-[#00ff88]">홀드 노트</span> - 길게 누르기</li>
-                  <li><span className="text-[#ffd700]">슬라이드 노트</span> - 특별 점수</li>
+                  <li><span className="text-[#00ff88]">{texts[language].normalNote}</span> - {texts[language].normalNoteDesc}</li>
+                  <li><span className="text-[#00ff88]">{texts[language].holdNote}</span> - {texts[language].holdNoteDesc}</li>
+                  <li><span className="text-[#ffd700]">{texts[language].slideNote}</span> - {texts[language].slideNoteDesc}</li>
                 </ul>
               </div>
               
@@ -248,7 +317,7 @@ export default function RhythmGameEnhancedPage() {
                     onClick={handleStart}
                     className="flex-1 bg-[#00ff88] text-[#0f0f1e] py-4 px-6 rounded-lg font-bold text-xl hover:bg-[#00cc66] transition-colors"
                   >
-                    게임 시작
+                    {texts[language].startGame}
                   </button>
                 ) : (
                   <>
@@ -256,13 +325,13 @@ export default function RhythmGameEnhancedPage() {
                       onClick={handlePause}
                       className="flex-1 bg-[#e94560] text-white py-4 px-6 rounded-lg font-bold text-xl hover:bg-[#c73650] transition-colors"
                     >
-                      {game?.isPaused ? '계속하기' : '일시정지'}
+                      {game?.isPaused ? texts[language].resume : texts[language].pause}
                     </button>
                     <button
                       onClick={handleStart}
                       className="flex-1 bg-[#00ff88] text-[#0f0f1e] py-4 px-6 rounded-lg font-bold text-xl hover:bg-[#00cc66] transition-colors"
                     >
-                      다시 시작
+                      {texts[language].restart}
                     </button>
                   </>
                 )}
@@ -270,7 +339,7 @@ export default function RhythmGameEnhancedPage() {
                   onClick={handleBackToMenu}
                   className="px-6 py-4 bg-[#666] text-white rounded-lg font-bold hover:bg-[#555] transition-colors"
                 >
-                  곡 선택
+                  {texts[language].songSelect}
                 </button>
               </div>
             </div>

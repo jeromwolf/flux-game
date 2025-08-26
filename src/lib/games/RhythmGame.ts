@@ -27,6 +27,55 @@ export class RhythmGame extends BaseGame {
   private perfectHits: number = 0;
   private goodHits: number = 0;
   private missedNotes: number = 0;
+  private language: 'ko' | 'en' = 'ko';
+  
+  // 다국어 텍스트
+  private texts = {
+    ko: {
+      selectSong: '곡 선택',
+      selectDifficulty: '난이도 선택',
+      easy: 'EASY',
+      normal: 'NORMAL',
+      hard: 'HARD',
+      expert: 'EXPERT',
+      startGame: '게임 시작',
+      leaderboard: '리더보드',
+      score: '점수',
+      combo: '콤보',
+      perfect: '퍼펙트',
+      good: '굿',
+      miss: '미스',
+      maxCombo: '최고 콤보',
+      accuracy: '정확도',
+      rank: '랭크',
+      gameOver: '게임 오버',
+      finalScore: '최종 점수',
+      retry: '다시하기',
+      back: '메인으로'
+    },
+    en: {
+      selectSong: 'Select Song',
+      selectDifficulty: 'Select Difficulty',
+      easy: 'EASY',
+      normal: 'NORMAL',
+      hard: 'HARD',
+      expert: 'EXPERT',
+      startGame: 'Start Game',
+      leaderboard: 'Leaderboard',
+      score: 'Score',
+      combo: 'Combo',
+      perfect: 'Perfect',
+      good: 'Good',
+      miss: 'Miss',
+      maxCombo: 'Max Combo',
+      accuracy: 'Accuracy',
+      rank: 'Rank',
+      gameOver: 'Game Over',
+      finalScore: 'Final Score',
+      retry: 'Retry',
+      back: 'Back to Main'
+    }
+  };
   private laneWidth: number = 100;
   private noteHeight: number = 20;
   private noteSpeed: number = 300;
@@ -53,6 +102,12 @@ export class RhythmGame extends BaseGame {
       version: '1.0.0',
       difficulty: 'medium' as GameDifficulty
     });
+    
+    // 언어 설정 불러오기
+    const savedLanguage = localStorage.getItem('flux-game-language');
+    if (savedLanguage === 'ko' || savedLanguage === 'en') {
+      this.language = savedLanguage;
+    }
     
     // 모바일 지원을 위한 터치 영역 설정
     if ('ontouchstart' in window) {

@@ -88,6 +88,9 @@ export default function GamePage() {
           case 'island-survival':
             GameModule = await import('@/lib/games/IslandSurvival');
             break;
+          case 'rhythm':
+            GameModule = await import('@/lib/games/RhythmGame');
+            break;
           case 'stack-tower':
             GameModule = await import('@/lib/games/StackTower');
             break;

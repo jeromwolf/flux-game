@@ -10,6 +10,7 @@ export default class LiquidRobot {
   private clock: any;
   private audioContext: AudioContext | null = null;
   private keys: { [key: string]: boolean } = {};
+  private language: 'ko' | 'en' = 'ko';
   
   // 게임 상태
   private currentLevel: number = 1;
@@ -31,6 +32,69 @@ export default class LiquidRobot {
   private readonly JUMP_FORCE = { liquid: 5, solid: 8, gas: 0 };
   private readonly GRAVITY = { liquid: -15, solid: -20, gas: -2 };
 
+  private texts = {
+    ko: {
+      loading: '3D 게임 로딩 중...',
+      loadError: '3D 엔진을 로드할 수 없습니다.',
+      level: '레벨',
+      laboratory: '실험실',
+      escape: '연구소를 탈출하세요!',
+      currentForm: '현재 형태',
+      liquid: '액체',
+      solid: '고체',
+      gas: '기체',
+      gasRemaining: '기체 유지',
+      seconds: '초',
+      controls: '조작법',
+      move: '이동',
+      jump: '점프/부유',
+      transform: '변신',
+      level1: '실험실',
+      level2: '하수도',
+      level3: '외부 정원',
+      levelComplete: '레벨 클리어!',
+      enterNext: '다음 레벨로 이동하려면 ENTER를 누르세요',
+      gameComplete: '축하합니다! 모든 레벨을 클리어했습니다!',
+      restart: '다시 시작하려면 R을 누르세요',
+      tip: '팁',
+      tips: {
+        liquid: '좁은 틈을 통과할 수 있습니다',
+        solid: '높이 뛸 수 있습니다',
+        gas: '공중에 떠다닐 수 있습니다'
+      }
+    },
+    en: {
+      loading: 'Loading 3D Game...',
+      loadError: 'Failed to load 3D engine.',
+      level: 'Level',
+      laboratory: 'Laboratory',
+      escape: 'Escape from the lab!',
+      currentForm: 'Current Form',
+      liquid: 'Liquid',
+      solid: 'Solid',
+      gas: 'Gas',
+      gasRemaining: 'Gas Remaining',
+      seconds: 's',
+      controls: 'Controls',
+      move: 'Move',
+      jump: 'Jump/Float',
+      transform: 'Transform',
+      level1: 'Laboratory',
+      level2: 'Sewers',
+      level3: 'Garden',
+      levelComplete: 'Level Complete!',
+      enterNext: 'Press ENTER to continue',
+      gameComplete: 'Congratulations! All levels completed!',
+      restart: 'Press R to restart',
+      tip: 'Tip',
+      tips: {
+        liquid: 'Can pass through narrow gaps',
+        solid: 'Can jump high',
+        gas: 'Can float in the air'
+      }
+    }
+  };
+
   constructor() {
     // Three.js will be loaded in mount
   }
@@ -38,13 +102,19 @@ export default class LiquidRobot {
   mount(container: HTMLElement): void {
     this.container = container;
     
+    // Load language from localStorage
+    const savedLanguage = localStorage.getItem('flux-game-language');
+    if (savedLanguage === 'ko' || savedLanguage === 'en') {
+      this.language = savedLanguage;
+    }
+    
     if (typeof window === 'undefined') {
       console.warn('LiquidRobot can only run in browser');
       return;
     }
     
     // 로딩 메시지
-    this.container.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Loading 3D Game...</div>';
+    this.container.innerHTML = `<div style="color: white; text-align: center; padding: 20px;">${this.texts[this.language].loading}</div>`;
     
     // Three.js 동적 로드
     setTimeout(() => {
@@ -57,7 +127,7 @@ export default class LiquidRobot {
       }).catch((error) => {
         console.error('Failed to load Three.js:', error);
         if (this.container) {
-          this.container.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Failed to load 3D engine.</div>';
+          this.container.innerHTML = `<div style="color: white; text-align: center; padding: 20px;">${this.texts[this.language].loadError}</div>`;
         }
       });
     }, 100);
@@ -71,6 +141,10 @@ export default class LiquidRobot {
     if (!this.container || !this.THREE) return;
     
     // HTML 구조 생성
+    const levelName = this.currentLevel === 1 ? this.texts[this.language].level1 : 
+                      this.currentLevel === 2 ? this.texts[this.language].level2 : 
+                      this.texts[this.language].level3;
+    
     this.container.innerHTML = `
       <div style="width: 100%; height: 600px; position: relative; overflow: hidden; background: #111;">
         <!-- 상단 UI -->
@@ -78,15 +152,15 @@ export default class LiquidRobot {
           <div style="background: rgba(0,0,0,0.8); padding: 15px; border-radius: 10px; border: 2px solid #0ff;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h2 style="color: #0ff; margin: 0 0 5px 0; font-size: 24px;">레벨 ${this.currentLevel}: 실험실</h2>
-                <div style="color: #aaa; font-size: 14px;">연구소를 탈출하세요!</div>
+                <h2 style="color: #0ff; margin: 0 0 5px 0; font-size: 24px;">${this.texts[this.language].level} ${this.currentLevel}: ${levelName}</h2>
+                <div style="color: #aaa; font-size: 14px;">${this.texts[this.language].escape}</div>
               </div>
               <div style="text-align: right;">
                 <div style="color: #fff; font-size: 18px; margin-bottom: 5px;">
-                  현재 형태: <span id="current-form" style="color: #0ff;">액체</span>
+                  ${this.texts[this.language].currentForm}: <span id="current-form" style="color: #0ff;">${this.texts[this.language].liquid}</span>
                 </div>
                 <div id="gas-timer" style="display: none; color: #ff0; font-size: 14px;">
-                  기체 유지: <span id="gas-time">5</span>초
+                  ${this.texts[this.language].gasRemaining}: <span id="gas-time">5</span>${this.texts[this.language].seconds}
                 </div>
               </div>
             </div>
@@ -98,13 +172,13 @@ export default class LiquidRobot {
           <div style="background: rgba(0,0,0,0.8); padding: 10px; border-radius: 10px; border: 2px solid #333;">
             <div style="display: flex; gap: 10px;">
               <button id="form-liquid" style="padding: 15px 25px; font-size: 16px; background: #00cccc; border: none; border-radius: 5px; color: white; cursor: pointer; transition: all 0.3s;">
-                💧 액체 [1]
+                💧 ${this.texts[this.language].liquid} [1]
               </button>
               <button id="form-solid" style="padding: 15px 25px; font-size: 16px; background: #666; border: none; border-radius: 5px; color: white; cursor: pointer; transition: all 0.3s;">
-                🧊 고체 [2]
+                🧊 ${this.texts[this.language].solid} [2]
               </button>
               <button id="form-gas" style="padding: 15px 25px; font-size: 16px; background: #666; border: none; border-radius: 5px; color: white; cursor: pointer; transition: all 0.3s;">
-                💨 기체 [3]
+                💨 ${this.texts[this.language].gas} [3]
               </button>
             </div>
           </div>
@@ -113,9 +187,9 @@ export default class LiquidRobot {
         <!-- 조작법 (왼쪽 하단) -->
         <div style="position: absolute; bottom: 20px; left: 20px; z-index: 10;">
           <div style="background: rgba(0,0,0,0.6); padding: 10px; border-radius: 5px; font-size: 12px; color: #aaa;">
-            <div>방향키: 이동</div>
-            <div>스페이스: 점프/부유</div>
-            <div>1,2,3: 변신</div>
+            <div>${this.language === 'ko' ? '방향키' : 'Arrow Keys'}: ${this.texts[this.language].move}</div>
+            <div>${this.language === 'ko' ? '스페이스' : 'Space'}: ${this.texts[this.language].jump}</div>
+            <div>1,2,3: ${this.texts[this.language].transform}</div>
           </div>
         </div>
         
@@ -125,13 +199,13 @@ export default class LiquidRobot {
         <!-- 레벨 완료 화면 -->
         <div id="level-complete" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; text-align: center;">
           <div style="background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 3px solid #0ff;">
-            <h2 style="color: #0ff; font-size: 40px; margin: 0 0 20px 0;">레벨 완료!</h2>
+            <h2 style="color: #0ff; font-size: 40px; margin: 0 0 20px 0;">${this.texts[this.language].levelComplete}</h2>
             <div style="color: #fff; font-size: 20px; margin-bottom: 30px;">
-              수집품: <span id="collectibles-count">0/3</span><br>
-              클리어 시간: <span id="clear-time">00:00</span>
+              ${this.language === 'ko' ? '수집품' : 'Collectibles'}: <span id="collectibles-count">0/3</span><br>
+              ${this.language === 'ko' ? '클리어 시간' : 'Clear Time'}: <span id="clear-time">00:00</span>
             </div>
             <button id="next-level" style="padding: 15px 40px; font-size: 20px; background: #0ff; border: none; border-radius: 10px; color: #000; font-weight: bold; cursor: pointer;">
-              다음 레벨 →
+              ${this.language === 'ko' ? '다음 레벨 →' : 'Next Level →'}
             </button>
           </div>
         </div>
@@ -319,7 +393,11 @@ export default class LiquidRobot {
     
     // UI 업데이트
     const formEl = this.container?.querySelector('#current-form');
-    const formNames = { liquid: '액체', solid: '고체', gas: '기체' };
+    const formNames = { 
+      liquid: this.texts[this.language].liquid, 
+      solid: this.texts[this.language].solid, 
+      gas: this.texts[this.language].gas 
+    };
     if (formEl) formEl.textContent = formNames[form];
     
     // 버튼 스타일 업데이트
