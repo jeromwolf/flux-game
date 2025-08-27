@@ -106,6 +106,9 @@ export default function GamePage() {
           case 'seoul-runner':
             GameModule = await import('@/lib/games/SeoulRunner');
             break;
+          case 'space-shooter':
+            GameModule = await import('@/lib/games/SpaceShooter');
+            break;
           default:
             throw new Error(`Game ${gameId} not found`);
         }

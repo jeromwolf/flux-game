@@ -28,6 +28,7 @@ const gameTranslations = {
     'liquid-robot': { name: '리퀴드 로봇', description: '변신하며 미션을 완성하세요!' },
     'k-food-rush': { name: 'K-Food Rush', description: '한국 음식을 만들어 전 세계 손님들을 만족시키세요!' },
     'seoul-runner': { name: 'Seoul Runner', description: '서울의 거리를 달리며 한국 문화를 경험하세요!' },
+    'space-shooter': { name: '스페이스 슈터', description: '우주에서 적을 물리치고 살아남으세요!' },
   },
   en: {
     'cookie-clicker': { name: 'Cookie Clicker', description: 'Click cookies to get rich!' },
@@ -49,6 +50,7 @@ const gameTranslations = {
     'liquid-robot': { name: 'Liquid Robot', description: 'Transform and complete missions!' },
     'k-food-rush': { name: 'K-Food Rush', description: 'Cook Korean food for global customers!' },
     'seoul-runner': { name: 'Seoul Runner', description: 'Run through Seoul collecting Korean cultural items!' },
+    'space-shooter': { name: 'Space Shooter', description: 'Defeat enemies and survive in space!' },
   }
 };
 
@@ -186,6 +188,13 @@ const games = [
     category: 'action',
     status: 'available',
     releaseDate: '2025-08-26',
+  },
+  {
+    id: 'space-shooter',
+    icon: '🚀',
+    category: 'action',
+    status: 'available',
+    releaseDate: '2025-08-27',
   },
 ];
 
