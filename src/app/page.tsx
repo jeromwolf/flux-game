@@ -29,6 +29,7 @@ const gameTranslations = {
     'k-food-rush': { name: 'K-Food Rush', description: '한국 음식을 만들어 전 세계 손님들을 만족시키세요!' },
     'seoul-runner': { name: 'Seoul Runner', description: '서울의 거리를 달리며 한국 문화를 경험하세요!' },
     'space-shooter': { name: '스페이스 슈터', description: '우주에서 적을 물리치고 살아남으세요!' },
+    'merge-master': { name: '머지 마스터', description: '같은 아이템을 합쳐 더 높은 가치를 만드세요!' },
   },
   en: {
     'cookie-clicker': { name: 'Cookie Clicker', description: 'Click cookies to get rich!' },
@@ -51,6 +52,7 @@ const gameTranslations = {
     'k-food-rush': { name: 'K-Food Rush', description: 'Cook Korean food for global customers!' },
     'seoul-runner': { name: 'Seoul Runner', description: 'Run through Seoul collecting Korean cultural items!' },
     'space-shooter': { name: 'Space Shooter', description: 'Defeat enemies and survive in space!' },
+    'merge-master': { name: 'Merge Master', description: 'Merge same items to create higher values!' },
   }
 };
 
@@ -193,6 +195,13 @@ const games = [
     id: 'space-shooter',
     icon: '🚀',
     category: 'action',
+    status: 'available',
+    releaseDate: '2025-08-27',
+  },
+  {
+    id: 'merge-master',
+    icon: '🔀',
+    category: 'puzzle',
     status: 'available',
     releaseDate: '2025-08-27',
   },

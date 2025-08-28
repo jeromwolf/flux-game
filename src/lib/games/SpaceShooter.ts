@@ -1409,7 +1409,7 @@ export default class SpaceShooter extends BaseGame {
   }
 
   private renderUI(): void {
-    const colors = this.currentTheme;
+    const colors = this.currentTheme.colors;
     
     // Score
     this.ctx!.fillStyle = colors.text;

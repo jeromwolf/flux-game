@@ -109,6 +109,9 @@ export default function GamePage() {
           case 'space-shooter':
             GameModule = await import('@/lib/games/SpaceShooter');
             break;
+          case 'merge-master':
+            GameModule = await import('@/lib/games/MergeMaster');
+            break;
           default:
             throw new Error(`Game ${gameId} not found`);
         }
