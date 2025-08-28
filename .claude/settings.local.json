@@ -31,7 +31,9 @@
       "Bash(cp:*)",
       "Bash(./restart.sh)",
       "Bash(find:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(diskutil:*)",
+      "Bash(defaults write:*)"
     ],
     "deny": []
   }

@@ -112,6 +112,9 @@ export default function GamePage() {
           case 'merge-master':
             GameModule = await import('@/lib/games/MergeMaster');
             break;
+          case 'time-loop':
+            GameModule = await import('@/lib/games/TimeLoop');
+            break;
           default:
             throw new Error(`Game ${gameId} not found`);
         }

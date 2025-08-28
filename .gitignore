@@ -2,6 +2,7 @@ node_modules/
 .pid
 flux-game.log
 .DS_Store
+._*
 *.log
 
 # next.js
