@@ -203,7 +203,7 @@ const games = [
     icon: '🔀',
     category: 'puzzle',
     status: 'available',
-    releaseDate: '2025-08-27',
+    releaseDate: '2025-08-28',
   },
 ];
 

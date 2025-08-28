@@ -44,6 +44,12 @@ export default class MergeMaster {
       this.canvas.removeEventListener('touchend', this.handleTouchEnd);
     }
     window.removeEventListener('resize', this.handleResize);
+    
+    // Close audio context
+    if (this.audioContext) {
+      this.audioContext.close();
+      this.audioContext = null;
+    }
   }
 
   private initializeGame() {
@@ -800,66 +806,91 @@ export default class MergeMaster {
     });
   }
 
+  private audioContext: AudioContext | null = null;
+
+  private initAudioContext() {
+    if (!this.audioContext) {
+      try {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        // Resume audio context if suspended
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    }
+  }
+
   private playSound(type: string, pitch: number = 1) {
+    // Initialize audio context on first user interaction
+    this.initAudioContext();
+    
+    if (!this.audioContext) return;
+    
     // Sound implementation using Web Audio API
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+      // Resume context if needed
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
+      
+      const oscillator = this.audioContext.createOscillator();
+      const gainNode = this.audioContext.createGain();
       
       oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+      gainNode.connect(this.audioContext.destination);
       
       switch (type) {
         case 'merge':
-          oscillator.frequency.setValueAtTime(440 * pitch, audioContext.currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(880 * pitch, audioContext.currentTime + 0.1);
-          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          oscillator.frequency.setValueAtTime(440 * pitch, this.audioContext.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(880 * pitch, this.audioContext.currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
           break;
         case 'spawn':
-          oscillator.frequency.setValueAtTime(330, audioContext.currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.1);
-          gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+          oscillator.frequency.setValueAtTime(330, this.audioContext.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(440, this.audioContext.currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.15);
           break;
         case 'explosion':
           // Create noise for explosion
-          const bufferSize = audioContext.sampleRate * 0.3;
-          const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+          const bufferSize = this.audioContext.sampleRate * 0.3;
+          const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
           const output = buffer.getChannelData(0);
           
           for (let i = 0; i < bufferSize; i++) {
             output[i] = Math.random() * 2 - 1;
           }
           
-          const noise = audioContext.createBufferSource();
+          const noise = this.audioContext.createBufferSource();
           noise.buffer = buffer;
           
-          const filter = audioContext.createBiquadFilter();
+          const filter = this.audioContext.createBiquadFilter();
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(1000, audioContext.currentTime);
-          filter.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+          filter.frequency.setValueAtTime(1000, this.audioContext.currentTime);
+          filter.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.3);
           
           noise.connect(filter);
           filter.connect(gainNode);
           
-          gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          gainNode.gain.setValueAtTime(0.5, this.audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
           
-          noise.start(audioContext.currentTime);
-          noise.stop(audioContext.currentTime + 0.3);
+          noise.start(this.audioContext.currentTime);
+          noise.stop(this.audioContext.currentTime + 0.3);
           return;
         case 'undo':
-          oscillator.frequency.setValueAtTime(660, audioContext.currentTime);
-          oscillator.frequency.linearRampToValueAtTime(440, audioContext.currentTime + 0.1);
-          gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+          oscillator.frequency.setValueAtTime(660, this.audioContext.currentTime);
+          oscillator.frequency.linearRampToValueAtTime(440, this.audioContext.currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
           break;
       }
       
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.3);
+      oscillator.start(this.audioContext.currentTime);
+      oscillator.stop(this.audioContext.currentTime + 0.3);
     } catch (e) {
       // Audio not available
     }

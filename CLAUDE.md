@@ -313,7 +313,7 @@ localStorage.setItem('new-game-highscore', score.toString());
   - **기술적 특징**:
     - 순수 TypeScript 클래스로 구현
     - Canvas 기반 렌더링과 파티클 효과
-    - Web Audio API 동적 사운드
+    - Web Audio API 동적 사운드 (단일 인스턴스로 최적화)
     - 육각형 그리드 수학적 계산
     - 자동 병합 AI 모드
   - **UI/UX 개선**:
@@ -325,6 +325,8 @@ localStorage.setItem('new-game-highscore', score.toString());
     - 육각형 그리드 렌더링 문제 해결
     - 캔버스 리사이징 최적화
     - 초기화 타이밍 개선
+    - Web Audio API 자동 재생 정책 대응 (suspended state 처리)
+  - **출시일**: 2025-08-28 (오늘 출시!)
 
 ### 향후 계획
 - **일일 게임 추가**: 매일 새로운 글로벌 타겟 게임 구현
