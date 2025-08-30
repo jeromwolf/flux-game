@@ -31,6 +31,7 @@ const gameTranslations = {
     'space-shooter': { name: '스페이스 슈터', description: '우주에서 적을 물리치고 살아남으세요!' },
     'merge-master': { name: '머지 마스터', description: '같은 아이템을 합쳐 더 높은 가치를 만드세요!' },
     'time-loop': { name: '타임 루프', description: '10초의 행동을 녹화하고 과거의 자신과 협력하세요!' },
+    'color-memory': { name: '컬러 메모리', description: '색상 패턴을 기억하고 재현하세요!' },
   },
   en: {
     'cookie-clicker': { name: 'Cookie Clicker', description: 'Click cookies to get rich!' },
@@ -55,6 +56,7 @@ const gameTranslations = {
     'space-shooter': { name: 'Space Shooter', description: 'Defeat enemies and survive in space!' },
     'merge-master': { name: 'Merge Master', description: 'Merge same items to create higher values!' },
     'time-loop': { name: 'Time Loop', description: 'Record 10 seconds and cooperate with your past selves!' },
+    'color-memory': { name: 'Color Memory', description: 'Remember and recreate color patterns!' },
   }
 };
 
@@ -213,6 +215,13 @@ const games = [
     category: 'puzzle',
     status: 'available',
     releaseDate: '2025-08-29',
+  },
+  {
+    id: 'color-memory',
+    icon: '🎨',
+    category: 'puzzle',
+    status: 'available',
+    releaseDate: '2025-08-30',
   },
 ];
 

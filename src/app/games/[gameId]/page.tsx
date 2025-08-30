@@ -115,6 +115,9 @@ export default function GamePage() {
           case 'time-loop':
             GameModule = await import('@/lib/games/TimeLoop');
             break;
+          case 'color-memory':
+            GameModule = await import('@/lib/games/ColorMemory');
+            break;
           default:
             throw new Error(`Game ${gameId} not found`);
         }
