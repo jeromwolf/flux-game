@@ -1,4 +1,6 @@
 import { ThemeManager, ThemeConfig } from './ThemeSystem';
+import { leaderboardSystem } from '../leaderboard/LeaderboardSystem';
+import { shareSystem } from '../share/ShareSystem';
 
 export interface GameObject {
   x: number;
@@ -24,6 +26,7 @@ export interface GameConfig {
   canvasHeight: number;
   backgroundColor?: string;
   gameName: string;
+  gameId: string; // 리더보드용 고유 ID
 }
 
 export abstract class BaseGame {
@@ -39,6 +42,10 @@ export abstract class BaseGame {
   protected isPaused: boolean = false;
   protected particles: Particle[] = [];
   
+  // Leaderboard state
+  protected playerName: string = '';
+  protected hasSubmittedScore: boolean = false;
+  
   // Configuration
   protected config: GameConfig;
   
@@ -51,6 +58,7 @@ export abstract class BaseGame {
     this.themeManager = ThemeManager.getInstance();
     this.currentTheme = this.themeManager.getCurrentTheme();
     this.loadHighScore();
+    this.loadPlayerName();
     
     // Listen for theme changes
     this.themeManager.addListener(this.onThemeChange.bind(this));
@@ -165,6 +173,40 @@ export abstract class BaseGame {
     }
   }
   
+  // Leaderboard methods
+  protected loadPlayerName(): void {
+    this.playerName = localStorage.getItem('flux-game-player-name') || '';
+  }
+  
+  protected savePlayerName(name: string): void {
+    this.playerName = name;
+    localStorage.setItem('flux-game-player-name', name);
+  }
+  
+  protected async submitScoreToLeaderboard(): Promise<void> {
+    if (!this.playerName || this.hasSubmittedScore) return;
+    
+    try {
+      const result = await leaderboardSystem.submitScore(
+        this.config.gameId,
+        this.playerName,
+        this.score
+      );
+      
+      this.hasSubmittedScore = true;
+      
+      // 리더보드 모달 표시
+      this.showLeaderboard();
+    } catch (error) {
+      console.error('Failed to submit score:', error);
+    }
+  }
+  
+  protected showLeaderboard(): void {
+    // 게임별로 구현하거나 공통 모달 사용
+    console.log('Showing leaderboard for', this.config.gameName);
+  }
+  
   protected loadHighScore(): void {
     const key = `${this.config.gameName.toLowerCase().replace(/\s+/g, '-')}-highscore`;
     this.highScore = parseInt(localStorage.getItem(key) || '0');
@@ -211,6 +253,26 @@ export abstract class BaseGame {
             <div style="font-size: 16px; color: #ff6b6b;">Best</div>
             <div id="highscore" style="font-size: 24px; font-weight: bold; color: #ff6b6b;">${this.highScore}</div>
           </div>
+          <button id="leaderboard-btn" style="
+            padding: 8px 16px;
+            font-size: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+          ">🏆 Leaderboard</button>
+          <button id="share-btn" style="
+            padding: 8px 16px;
+            font-size: 14px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+          ">📤 Share</button>
           ${additionalStats}
         </div>
 
@@ -242,22 +304,71 @@ export abstract class BaseGame {
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     `;
     
+    // 플레이어 이름 입력 또는 점수 제출
+    const nameInputSection = !this.playerName ? `
+      <div style="margin: 20px 0;">
+        <input type="text" id="player-name-input" placeholder="이름을 입력하세요" style="
+          padding: 10px 20px;
+          font-size: 16px;
+          border: 2px solid #ddd;
+          border-radius: 8px;
+          width: 200px;
+          margin-right: 10px;
+        ">
+        <button onclick="window.currentGame.submitScore()" style="
+          padding: 10px 20px;
+          font-size: 16px;
+          font-weight: bold;
+          color: white;
+          background: linear-gradient(135deg, #ff6b6b, #ff8787);
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+        ">점수 등록</button>
+      </div>
+    ` : `
+      <button onclick="window.currentGame.submitScoreWithName()" style="
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background: linear-gradient(135deg, #ff6b6b, #ff8787);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 20px 0;
+      ">리더보드에 등록 (${this.playerName})</button>
+    `;
+    
     overlay.innerHTML = `
       <h2 style="font-size: 36px; margin-bottom: 20px; color: #ff6b6b;">${title}</h2>
       <p style="font-size: 24px; margin-bottom: 10px;">Score: ${score}</p>
       ${additionalInfo}
-      <button onclick="window.currentGame.restart()" style="
-        padding: 15px 40px;
-        font-size: 18px;
-        font-weight: bold;
-        color: white;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: transform 0.2s;
-        margin-top: 20px;
-      " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Play Again</button>
+      ${!this.hasSubmittedScore ? nameInputSection : ''}
+      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+        <button onclick="window.currentGame.shareScore()" style="
+          padding: 15px 30px;
+          font-size: 18px;
+          font-weight: bold;
+          color: white;
+          background: linear-gradient(135deg, #4ecdc4, #44a08d);
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">📤 Share</button>
+        <button onclick="window.currentGame.restart()" style="
+          padding: 15px 40px;
+          font-size: 18px;
+          font-weight: bold;
+          color: white;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Play Again</button>
+      </div>
     `;
     
     const overlaysContainer = document.getElementById('game-overlays');
@@ -279,7 +390,51 @@ export abstract class BaseGame {
     this.score = 0;
     this.gameOver = false;
     this.particles = [];
+    this.hasSubmittedScore = false;
     this.initialize();
+  }
+  
+  // Score submission methods
+  public submitScore(): void {
+    const input = document.getElementById('player-name-input') as HTMLInputElement;
+    if (!input) return;
+    
+    const name = input.value.trim();
+    const validation = leaderboardSystem.validatePlayerName(name);
+    
+    if (!validation.valid) {
+      alert(validation.error);
+      return;
+    }
+    
+    this.savePlayerName(name);
+    this.submitScoreToLeaderboard();
+  }
+  
+  public submitScoreWithName(): void {
+    this.submitScoreToLeaderboard();
+  }
+  
+  // Share functionality
+  public async shareScore(): Promise<void> {
+    const language = (localStorage.getItem('flux-game-language') as 'ko' | 'en') || 'ko';
+    
+    await shareSystem.shareGame({
+      gameId: this.config.gameId,
+      gameName: this.config.gameName,
+      score: this.score
+    }, {
+      platforms: ['native', 'twitter', 'facebook', 'kakao', 'clipboard'],
+      language
+    });
+  }
+  
+  // Share button handler for main UI
+  protected setupShareButton(): void {
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => this.shareScore());
+    }
   }
   
   // Theme change handler

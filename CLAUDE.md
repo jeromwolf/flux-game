@@ -8,10 +8,10 @@ Flux Game은 지하철에서 할 수 있는 간단한 게임 꾸러미입니다.
 
 ## Context Summary
 
-2024년 12월부터 개발된 이 프로젝트는 Kelly가 지하철에서 간단히 즐길 수 있는 게임 모음으로 시작되어, 현재 12개의 완성된 게임과 Next.js 기반의 현대적인 웹 게임 플랫폼으로 발전했습니다.
+2024년 12월부터 개발된 이 프로젝트는 Kelly가 지하철에서 간단히 즐길 수 있는 게임 모음으로 시작되어, 현재 23개의 완성된 게임과 Next.js 기반의 현대적인 웹 게임 플랫폼으로 발전했습니다.
 
 ### 주요 특징
-- **12개의 완성된 게임**: 다양한 장르와 난이도
+- **23개의 완성된 게임**: 다양한 장르와 난이도
 - **Next.js + TypeScript**: 최신 웹 기술 스택 사용
 - **향상된 분석 시스템**: 오늘/전체 방문수 분리 추적, 트렌딩 표시
 - **테마 시스템**: 8개의 내장 테마로 게임 분위기 커스터마이징
@@ -83,7 +83,9 @@ src/
 │   │   ├── FluxJump.ts
 │   │   ├── FlappyFlux.ts
 │   │   ├── DinoRunFixed.ts
-│   │   └── WordTower.ts
+│   │   ├── WordTower.ts
+│   │   ├── ColorMemory.ts
+│   │   └── PianoMemory.ts
 │   ├── analytics/
 │   │   ├── GameAnalytics.ts
 │   │   └── GameAnalyticsV2.ts # 향상된 분석 시스템
@@ -150,7 +152,7 @@ localStorage.setItem('new-game-highscore', score.toString());
 - **게임별 특화**: 각 게임마다 8-10개의 고유한 사운드 효과
 - **Web Audio API 활용**: 브라우저 네이티브 API로 최고의 성능과 호환성
 
-### 현재 완성된 게임 (18개)
+### 현재 완성된 게임 (23개)
 1. **쿠키 클리커** (Casual) - 아이들 게임, 업그레이드 시스템
 2. **플럭스 점프** (Casual) - 엔들리스 러너, 장애물 회피
 3. **K-Food Rush** (Casual) - 한국 음식 조리 시간 관리
@@ -201,7 +203,7 @@ localStorage.setItem('new-game-highscore', score.toString());
   - 모든 12개 게임에 동적 색상, 그라디언트, 시각 효과 통합
   - 게임별 테마 적용: 버튼, 배경, UI 요소 모두 테마 연동
   - 실시간 테마 변경 지원
-- **16개의 완성된 게임**: Island Survival, Stack Tower, K-Food Rush, Seoul Runner 추가
+- **23개의 완성된 게임**: 다양한 퍼즐, 액션, 아케이드, 전략 게임
 - **글로벌 게임 플랫폼 전략 수립**: 
   - 사업계획서 작성 (BUSINESS_PLAN.md)
   - 매일 1개씩 새로운 게임 출시 목표
@@ -276,7 +278,7 @@ localStorage.setItem('new-game-highscore', score.toString());
     - forEach/splice 충돌로 인한 점수 미반영 버그 수정
     - 이벤트 리스너 메모리 누수 방지
 
-### 현재 완성된 게임 (22개)
+### 현재 완성된 게임 (23개)
 1. **쿠키 클리커** (Casual) - 아이들 게임, 업그레이드 시스템
 2. **플럭스 점프** (Casual) - 엔들리스 러너, 장애물 회피
 3. **K-Food Rush** (Casual) - 한국 음식 조리 시간 관리
@@ -286,19 +288,20 @@ localStorage.setItem('new-game-highscore', score.toString());
 7. **워드 타워** (Puzzle) - 단어 쌓기, 어휘력 향상
 8. **Merge Master** (Puzzle) - 육각형 그리드 숫자 병합
 9. **Time Loop** (Puzzle) - 시간 녹화와 협력 퍼즐
-10. **Color Memory** (Puzzle) - 색상 패턴 기억 게임 **(NEW!)**
-11. **스네이크** (Action) - 뱀 게임, 터치 컨트롤
-12. **브레이크아웃** (Action) - 블록 깨기, 파워업
-13. **다이노 런** (Action) - 공룡 러너, 파워업 시스템
-14. **Seoul Runner** (Action) - 서울 배경 엔들리스 러너
-15. **Liquid Robot** (Action) - 변신 로봇 미션 게임
-16. **Space Shooter** (Action) - 우주 슈팅, 보스전
-17. **버블 슈터** (Arcade) - 색깔 매칭, 콤보 시스템
-18. **플래피 플럭스** (Arcade) - 파이프 피하기, 중력 물리
-19. **Stack Tower** (Arcade) - 블록 쌓기 타이밍 게임
-20. **Cube Collector 3D** (Arcade) - 3D 큐브 수집
-21. **틱택토** (Strategy) - AI 대전, 미니맥스 알고리즘
-22. **Island Survival** (Strategy) - 무인도 생존 시뮬레이션
+10. **Color Memory** (Puzzle) - 색상 패턴 기억 게임
+11. **Piano Memory** (Puzzle) - 음계 기억 게임 **(NEW!)**
+12. **스네이크** (Action) - 뱀 게임, 터치 컨트롤
+13. **브레이크아웃** (Action) - 블록 깨기, 파워업
+14. **다이노 런** (Action) - 공룡 러너, 파워업 시스템
+15. **Seoul Runner** (Action) - 서울 배경 엔들리스 러너
+16. **Liquid Robot** (Action) - 변신 로봇 미션 게임
+17. **Space Shooter** (Action) - 우주 슈팅, 보스전
+18. **버블 슈터** (Arcade) - 색깔 매칭, 콤보 시스템
+19. **플래피 플럭스** (Arcade) - 파이프 피하기, 중력 물리
+20. **Stack Tower** (Arcade) - 블록 쌓기 타이밍 게임
+21. **Cube Collector 3D** (Arcade) - 3D 큐브 수집
+22. **틱택토** (Strategy) - AI 대전, 미니맥스 알고리즘
+23. **Island Survival** (Strategy) - 무인도 생존 시뮬레이션
 
 ### 최신 변경사항 (2025년 8월 28일)
 - **Merge Master 게임 추가**:
@@ -370,7 +373,22 @@ localStorage.setItem('new-game-highscore', score.toString());
     - 터치/클릭 이벤트 통합 처리
     - 시각적 피드백 애니메이션
     - Web Audio API 동적 사운드
-  - **출시일**: 2025-08-30 (오늘 출시!)
+  - **출시일**: 2025-08-30
+
+### 최신 변경사항 (2025년 8월 31일)
+- **Piano Memory 게임 추가**:
+  - 음계를 듣고 순서대로 연주하는 청각적 기억력 게임
+  - **게임플레이 특징**:
+    - 점점 길어지는 음계 시퀀스를 듣고 재현
+    - 8개의 피아노 건반 (도레미파솔라시도)
+    - 레벨이 올라갈수록 시퀀스 길이 증가
+    - 실수 시 한 단계 뒤로 돌아가는 관대한 시스템
+  - **기술적 특징**:
+    - Canvas 기반 피아노 건반 UI
+    - Web Audio API로 실시간 피아노 사운드 생성
+    - 시각적 + 청각적 피드백 동시 제공
+    - 터치/클릭 이벤트 통합 처리
+  - **출시일**: 2025-08-31 (오늘 출시!)
 
 ### 향후 계획
 - **일일 게임 추가**: 매일 새로운 글로벌 타겟 게임 구현

@@ -118,6 +118,12 @@ export default function GamePage() {
           case 'color-memory':
             GameModule = await import('@/lib/games/ColorMemory');
             break;
+          case 'piano-memory':
+            GameModule = await import('@/lib/games/PianoMemory');
+            break;
+          case 'word-memory':
+            GameModule = await import('@/lib/games/WordMemory');
+            break;
           default:
             throw new Error(`Game ${gameId} not found`);
         }

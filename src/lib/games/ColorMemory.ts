@@ -112,6 +112,9 @@ export default class ColorMemory extends BaseGame {
     // Add keyboard shortcuts
     document.addEventListener('keydown', this.handleKeyPress.bind(this));
     
+    // Setup share button
+    this.setupShareButton();
+    
     // Show tutorial on first play
     this.showTutorial();
   }

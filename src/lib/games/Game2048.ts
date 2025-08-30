@@ -1,4 +1,7 @@
 import { ThemedDOMGame } from '../core/ThemedDOMGame';
+import { LeaderboardSystem } from '../leaderboard/LeaderboardSystem';
+import { TutorialSystem, TutorialConfig } from '../tutorial/TutorialSystem';
+import { AchievementSystem } from '../achievements/AchievementSystem';
 
 interface Tile {
   id: number;
@@ -29,6 +32,12 @@ export default class Game2048 extends ThemedDOMGame {
   private combo = 0;
   private lastMergeTime = 0;
   private language: 'ko' | 'en' = 'ko';
+  private hasUsedUndo = false;
+  private highestTile = 0;
+  private leaderboardSystem: LeaderboardSystem;
+  private tutorialSystem: TutorialSystem;
+  private achievementSystem: AchievementSystem;
+  private playerName: string = '';
   
   // 다국어 텍스트
   private texts = {
@@ -42,7 +51,15 @@ export default class Game2048 extends ThemedDOMGame {
       continue: '계속하기',
       tryAgain: '다시 도전',
       instruction: '타일을 합쳐 2048을 만드세요!',
-      controlHint: '화살표 또는 스와이프로 타일을 이동하세요'
+      controlHint: '화살표 또는 스와이프로 타일을 이동하세요',
+      leaderboard: '리더보드',
+      submitScore: '점수 제출',
+      enterName: '이름을 입력하세요',
+      tutorialTitle: '게임 방법',
+      tutorialStep1: '화살표 키나 스와이프로 타일을 이동하세요',
+      tutorialStep2: '같은 숫자의 타일을 합쳐 더 큰 숫자를 만드세요',
+      tutorialStep3: '2048 타일을 만들면 승리합니다!',
+      achievementUnlocked: '업적 달성!'
     },
     en: {
       newGame: 'New Game',
@@ -54,7 +71,15 @@ export default class Game2048 extends ThemedDOMGame {
       continue: 'Continue',
       tryAgain: 'Try Again',
       instruction: 'Join the tiles to get 2048!',
-      controlHint: 'Use arrow keys or swipe to move tiles'
+      controlHint: 'Use arrow keys or swipe to move tiles',
+      leaderboard: 'Leaderboard',
+      submitScore: 'Submit Score',
+      enterName: 'Enter your name',
+      tutorialTitle: 'How to Play',
+      tutorialStep1: 'Use arrow keys or swipe to move tiles',
+      tutorialStep2: 'Merge tiles with the same number to create larger numbers',
+      tutorialStep3: 'Create a 2048 tile to win!',
+      achievementUnlocked: 'Achievement Unlocked!'
     }
   };
 
@@ -71,6 +96,9 @@ export default class Game2048 extends ThemedDOMGame {
 
   constructor() {
     super('2048');
+    this.leaderboardSystem = LeaderboardSystem.getInstance();
+    this.tutorialSystem = TutorialSystem.getInstance();
+    this.achievementSystem = AchievementSystem.getInstance();
   }
 
   protected setupGame(): void {
@@ -82,10 +110,19 @@ export default class Game2048 extends ThemedDOMGame {
       this.language = savedLanguage;
     }
 
+    // Load player name
+    this.playerName = localStorage.getItem('flux-game-player-name') || '';
+
     this.createGameHTML();
     this.bindElements();
     this.bindEvents();
     this.applyTheme();
+    
+    // Start tutorial on first play
+    const hasPlayedBefore = localStorage.getItem('2048-tutorial-completed') === 'true';
+    if (!hasPlayedBefore) {
+      this.startTutorial();
+    }
   }
 
   protected initialize(): void {
@@ -99,6 +136,8 @@ export default class Game2048 extends ThemedDOMGame {
     this.previousState = null;
     this.canUndo = true;
     this.combo = 0;
+    this.hasUsedUndo = false;
+    this.highestTile = 0;
 
     this.addNewTile();
     this.addNewTile();
@@ -150,13 +189,18 @@ export default class Game2048 extends ThemedDOMGame {
                 </div>
               </div>
               
-              <div style="display: flex; gap: 12px;">
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <button id="new-game-btn" style="${this.getThemedButtonStyles('primary')}">
                   ${t.newGame}
                 </button>
                 <button id="undo-btn" style="${this.getThemedButtonStyles('secondary')}">
                   ${t.undo}
                 </button>
+                <button id="leaderboard-btn" style="${this.getThemedButtonStyles('accent')}">
+                  ${t.leaderboard}
+                </button>
+                <button id="tutorial-btn" style="${this.getThemedButtonStyles('info')}">
+                  ?                </button>
               </div>
             </div>
             
@@ -249,6 +293,16 @@ export default class Game2048 extends ThemedDOMGame {
     const continueBtn = document.getElementById('continue-btn');
     if (continueBtn) {
       continueBtn.addEventListener('click', () => this.hideMessage());
+    }
+
+    const leaderboardBtn = document.getElementById('leaderboard-btn');
+    if (leaderboardBtn) {
+      leaderboardBtn.addEventListener('click', () => this.showLeaderboard());
+    }
+
+    const tutorialBtn = document.getElementById('tutorial-btn');
+    if (tutorialBtn) {
+      tutorialBtn.addEventListener('click', () => this.startTutorial());
     }
 
     document.addEventListener('keydown', this.handleKeyPress);
@@ -368,10 +422,12 @@ export default class Game2048 extends ThemedDOMGame {
         const t = this.texts[this.language];
         this.showMessage(t.won, `${t.score}: ${this.score}`);
         this.won = true;
+        this.submitToLeaderboard();
       } else if (this.checkGameOver()) {
         const t = this.texts[this.language];
         this.showMessage(t.gameOver, `${t.score}: ${this.score}`);
         this.gameOver = true;
+        this.submitToLeaderboard();
       }
     } else {
       this.previousState = null;
@@ -420,6 +476,12 @@ export default class Game2048 extends ThemedDOMGame {
             newTiles.set(mergedTile.id, mergedTile);
             
             this.updateScore(merged);
+            
+            // Track highest tile and check achievements
+            if (merged > this.highestTile) {
+              this.highestTile = merged;
+              this.checkAchievements();
+            }
             
             if (positions.farthest.x !== x || positions.farthest.y !== y) {
               moved = true;
@@ -564,6 +626,7 @@ export default class Game2048 extends ThemedDOMGame {
     this.gameOver = this.previousState.gameOver;
     this.won = this.previousState.won;
     this.canUndo = false;
+    this.hasUsedUndo = true;
     
     this.updateDisplay();
   }
@@ -691,6 +754,226 @@ export default class Game2048 extends ThemedDOMGame {
 
   public restart(): void {
     super.restart();
+    this.hasUsedUndo = false;
+    this.highestTile = 0;
     this.updateDisplay();
+  }
+
+  private startTutorial(): void {
+    const t = this.texts[this.language];
+    const tutorialConfig: TutorialConfig = {
+      gameId: '2048',
+      steps: [
+        {
+          id: 'welcome',
+          title: t.tutorialTitle,
+          description: t.instruction,
+          position: 'center',
+          nextTrigger: 'click'
+        },
+        {
+          id: 'controls',
+          title: t.tutorialTitle,
+          description: t.tutorialStep1,
+          highlightElement: '#game-board',
+          position: 'top',
+          nextTrigger: 'click'
+        },
+        {
+          id: 'merge',
+          title: t.tutorialTitle,
+          description: t.tutorialStep2,
+          highlightElement: '#game-board',
+          position: 'center',
+          nextTrigger: 'click'
+        },
+        {
+          id: 'goal',
+          title: t.tutorialTitle,
+          description: t.tutorialStep3,
+          position: 'center',
+          nextTrigger: 'click'
+        }
+      ],
+      showOnFirstPlay: true,
+      version: 1
+    };
+
+    this.tutorialSystem.startTutorial(tutorialConfig, true);
+    
+    // Mark tutorial as completed when user finishes it
+    // The tutorial system will handle marking it as seen internally
+  }
+
+  private showLeaderboard(): void {
+    // Create and show leaderboard modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    `;
+
+    const topScores = this.leaderboardSystem.getTopScores('2048', 10);
+    const t = this.texts[this.language];
+
+    modal.innerHTML = `
+      <div style="
+        background: ${this.getThemeColor('surface')};
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 400px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      ">
+        <h2 style="
+          margin: 0 0 20px 0;
+          text-align: center;
+          color: ${this.getThemeColor('primary')};
+          font-size: 28px;
+        ">${t.leaderboard} 🏆</h2>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          ${topScores.map((entry, index) => `
+            <div style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 12px 16px;
+              background: ${index < 3 ? this.getThemeGradient('135deg', 'primary', 'secondary') : this.getThemeColor('background')};
+              border-radius: 8px;
+              color: ${index < 3 ? 'white' : this.getThemeColor('text')};
+            ">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="
+                  font-size: 20px;
+                  font-weight: bold;
+                  width: 30px;
+                ">${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}</span>
+                <span style="font-weight: ${index < 3 ? 'bold' : 'normal'};">${entry.playerName}</span>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-weight: bold; font-size: 18px;">${entry.score.toLocaleString()}</div>
+                ${entry.metadata?.highestTile ? `
+                  <div style="font-size: 12px; opacity: 0.8;">Max: ${entry.metadata.highestTile}</div>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+          
+          ${topScores.length === 0 ? `
+            <div style="
+              text-align: center;
+              padding: 40px;
+              color: ${this.getThemeColor('textSecondary')};
+            ">
+              ${this.language === 'ko' ? '아직 기록이 없습니다!' : 'No scores yet!'}
+            </div>
+          ` : ''}
+        </div>
+        
+        <button style="
+          ${this.getThemedButtonStyles('primary')}
+          width: 100%;
+          margin-top: 20px;
+        " onclick="this.parentElement.parentElement.remove()">
+          ${this.language === 'ko' ? '닫기' : 'Close'}
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
+
+  private async submitToLeaderboard(): Promise<void> {
+    if (this.score === 0) return;
+
+    if (!this.playerName) {
+      const t = this.texts[this.language];
+      const name = prompt(t.enterName);
+      if (name) {
+        this.playerName = name;
+        localStorage.setItem('flux-game-player-name', name);
+      } else {
+        return;
+      }
+    }
+
+    const result = await this.leaderboardSystem.submitScore(
+      '2048',
+      this.playerName,
+      this.score,
+      {
+        highestTile: this.highestTile,
+        hasUsedUndo: this.hasUsedUndo
+      }
+    );
+
+    if (result.isNewHighScore) {
+      const t = this.texts[this.language];
+      // Show celebration animation using a simple notification
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${this.getThemeGradient('135deg', 'primary', 'secondary')};
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 16px;
+        z-index: 1000;
+        animation: slideUp 0.3s ease-out;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      `;
+      notification.textContent = `🏆 ${t.leaderboard} #${result.rank}!`;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+  }
+
+  private checkAchievements(): void {
+    const achievements = [
+      { tile: 512, id: '2048-first-512' },
+      { tile: 2048, id: '2048-reach-2048' },
+      { tile: 4096, id: '2048-reach-4096' }
+    ];
+
+    achievements.forEach(achievement => {
+      if (this.highestTile >= achievement.tile) {
+        const wasUnlocked = this.achievementSystem.checkAchievement(achievement.id);
+        if (wasUnlocked) {
+          // Achievement will be shown by the system's notification queue
+        }
+      }
+    });
+
+    // Check for no-undo achievement
+    if (this.highestTile >= 2048 && !this.hasUsedUndo) {
+      const wasUnlocked = this.achievementSystem.checkAchievement('2048-no-undo');
+      if (wasUnlocked) {
+        // Achievement will be shown by the system's notification queue
+      }
+    }
   }
 }

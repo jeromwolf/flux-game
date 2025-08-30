@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import ThemeSelector from '@/components/ui/ThemeSelector';
 import { LanguageSelector, type Language } from '@/components/ui/LanguageSelector';
 import { gameAnalyticsV2 } from '@/lib/analytics/GameAnalyticsV2';
+import { shareSystem } from '@/lib/share/ShareSystem';
 
 // 게임 데이터 (다국어 지원)
 const gameTranslations = {
@@ -32,6 +33,8 @@ const gameTranslations = {
     'merge-master': { name: '머지 마스터', description: '같은 아이템을 합쳐 더 높은 가치를 만드세요!' },
     'time-loop': { name: '타임 루프', description: '10초의 행동을 녹화하고 과거의 자신과 협력하세요!' },
     'color-memory': { name: '컬러 메모리', description: '색상 패턴을 기억하고 재현하세요!' },
+    'piano-memory': { name: '피아노 메모리', description: '음계를 듣고 순서대로 연주하세요!' },
+    'word-memory': { name: '단어 메모리', description: '단어를 기억하고 순서대로 재현하세요!' },
   },
   en: {
     'cookie-clicker': { name: 'Cookie Clicker', description: 'Click cookies to get rich!' },
@@ -57,6 +60,8 @@ const gameTranslations = {
     'merge-master': { name: 'Merge Master', description: 'Merge same items to create higher values!' },
     'time-loop': { name: 'Time Loop', description: 'Record 10 seconds and cooperate with your past selves!' },
     'color-memory': { name: 'Color Memory', description: 'Remember and recreate color patterns!' },
+    'piano-memory': { name: 'Piano Memory', description: 'Listen and play back the musical sequence!' },
+    'word-memory': { name: 'Word Memory', description: 'Remember and recreate word sequences!' },
   }
 };
 
@@ -223,6 +228,20 @@ const games = [
     status: 'available',
     releaseDate: '2025-08-30',
   },
+  {
+    id: 'piano-memory',
+    icon: '🎹',
+    category: 'puzzle',
+    status: 'available',
+    releaseDate: '2025-08-31',
+  },
+  {
+    id: 'word-memory',
+    icon: '📝',
+    category: 'puzzle',
+    status: 'available',
+    releaseDate: '2025-09-01',
+  },
 ];
 
 export default function Home() {
@@ -318,6 +337,28 @@ export default function Home() {
           {language === 'ko' ? 'AI 기반 메커닉으로 게임의 미래를 경험하세요' : 'Experience the future of gaming with AI-powered mechanics'}
         </p>
         
+        {/* Share Button */}
+        <div className="mb-8">
+          <button
+            onClick={() => {
+              shareSystem.shareGame({
+                gameId: 'flux-games',
+                gameName: 'Flux Games',
+                customMessage: language === 'ko' 
+                  ? '🎮 Flux Games에서 재미있는 게임들을 발견했어요! 언제 어디서나 5분 게임! 회원가입 없이 바로 플레이!' 
+                  : '🎮 Discovered amazing games at Flux Games! 5-minute games anytime, anywhere! Play instantly without signup!'
+              }, {
+                platforms: ['native', 'twitter', 'facebook', 'kakao', 'clipboard'],
+                language
+              });
+            }}
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/20 transition-all inline-flex items-center gap-2"
+          >
+            <span>📤</span>
+            <span>{language === 'ko' ? '친구에게 공유하기' : 'Share with Friends'}</span>
+          </button>
+        </div>
+        
         {/* Global Stats */}
         <div className="flex justify-center gap-8 mt-8">
           <div className="bg-gray-900 border border-gray-800 rounded-lg px-6 py-4 min-w-[120px]">
@@ -376,9 +417,30 @@ export default function Home() {
               </div>
               <p className="text-gray-400 text-sm mb-3">{gameTranslations[language][game.id]?.description || ''}</p>
               {game.status === 'available' && isLoaded && (
-                <div className="flex gap-4 text-xs text-gray-500">
-                  <span>{language === 'ko' ? '오늘' : 'Today'}: {stats.today}</span>
-                  <span>{language === 'ko' ? '전체' : 'Total'}: {stats.total}</span>
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-4 text-xs text-gray-500">
+                    <span>{language === 'ko' ? '오늘' : 'Today'}: {stats.today}</span>
+                    <span>{language === 'ko' ? '전체' : 'Total'}: {stats.total}</span>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      shareSystem.shareGame({
+                        gameId: game.id,
+                        gameName: gameTranslations[language][game.id]?.name || game.id
+                      }, {
+                        platforms: ['native', 'twitter', 'facebook', 'kakao', 'clipboard'],
+                        language
+                      });
+                    }}
+                    className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                    title={language === 'ko' ? '공유하기' : 'Share'}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a3 3 0 10-2.684-4.026m-9.032 0a3 3 0 002.684 4.026m9.032 0l-3.633 2.36m-5.432 0l3.633-2.36m0 0a3 3 0 00-5.266-2.36" />
+                    </svg>
+                  </button>
                 </div>
               )}
             </Link>
