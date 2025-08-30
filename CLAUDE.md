@@ -8,16 +8,18 @@ Flux Game은 지하철에서 할 수 있는 간단한 게임 꾸러미입니다.
 
 ## Context Summary
 
-2024년 12월부터 개발된 이 프로젝트는 Kelly가 지하철에서 간단히 즐길 수 있는 게임 모음으로 시작되어, 현재 23개의 완성된 게임과 Next.js 기반의 현대적인 웹 게임 플랫폼으로 발전했습니다.
+2024년 12월부터 개발된 이 프로젝트는 Kelly가 지하철에서 간단히 즐길 수 있는 게임 모음으로 시작되어, 현재 26개의 완성된 게임과 Next.js 기반의 현대적인 웹 게임 플랫폼으로 발전했습니다.
 
 ### 주요 특징
-- **23개의 완성된 게임**: 다양한 장르와 난이도
+- **26개의 완성된 게임**: 다양한 장르와 난이도
 - **Next.js + TypeScript**: 최신 웹 기술 스택 사용
 - **향상된 분석 시스템**: 오늘/전체 방문수 분리 추적, 트렌딩 표시
 - **테마 시스템**: 8개의 내장 테마로 게임 분위기 커스터마이징
 - **모바일 퍼스트 디자인**: 터치, 제스처, 반응형 UI
 - **동적 게임 로딩**: 필요한 게임만 로드하여 성능 최적화
 - **로컬 저장소 활용**: 최고 점수, 게임 진행 상황, 분석 데이터 저장
+- **공유 시스템**: SNS 및 메신저를 통한 게임 공유 기능
+- **게임 시스템**: 리더보드, 튜토리얼, 업적 시스템 통합
 
 ## Development Commands
 
@@ -85,14 +87,23 @@ src/
 │   │   ├── DinoRunFixed.ts
 │   │   ├── WordTower.ts
 │   │   ├── ColorMemory.ts
-│   │   └── PianoMemory.ts
+│   │   ├── PianoMemory.ts
+│   │   └── WordMemory.ts
 │   ├── analytics/
 │   │   ├── GameAnalytics.ts
 │   │   └── GameAnalyticsV2.ts # 향상된 분석 시스템
-│   └── core/                # 게임 기반 시스템
-│       ├── BaseGame.ts      # 게임 베이스 클래스
-│       ├── ThemeSystem.ts   # 테마 관리자
-│       └── GameUtils.ts     # 유틸리티 함수
+│   ├── core/                # 게임 기반 시스템
+│   │   ├── BaseGame.ts      # 게임 베이스 클래스
+│   │   ├── ThemeSystem.ts   # 테마 관리자
+│   │   └── GameUtils.ts     # 유틸리티 함수
+│   ├── leaderboard/         # 리더보드 시스템
+│   │   └── LeaderboardSystem.ts
+│   ├── tutorial/            # 튜토리얼 시스템
+│   │   └── TutorialSystem.ts
+│   ├── achievements/        # 업적 시스템
+│   │   └── AchievementSystem.ts
+│   └── share/               # 공유 시스템
+│       └── ShareSystem.ts
 └── components/              # React 컴포넌트
     ├── games/
     └── ui/
@@ -152,7 +163,7 @@ localStorage.setItem('new-game-highscore', score.toString());
 - **게임별 특화**: 각 게임마다 8-10개의 고유한 사운드 효과
 - **Web Audio API 활용**: 브라우저 네이티브 API로 최고의 성능과 호환성
 
-### 현재 완성된 게임 (23개)
+### 현재 완성된 게임 (26개)
 1. **쿠키 클리커** (Casual) - 아이들 게임, 업그레이드 시스템
 2. **플럭스 점프** (Casual) - 엔들리스 러너, 장애물 회피
 3. **K-Food Rush** (Casual) - 한국 음식 조리 시간 관리
@@ -160,17 +171,25 @@ localStorage.setItem('new-game-highscore', score.toString());
 5. **테트리스** (Puzzle) - 블록 쌓기, 레벨 시스템
 6. **지뢰찾기** (Puzzle) - 논리 퍼즐, 3가지 난이도
 7. **워드 타워** (Puzzle) - 단어 쌓기, 어휘력 향상
-8. **스네이크** (Action) - 뱀 게임, 터치 컨트롤
-9. **브레이크아웃** (Action) - 블록 깨기, 파워업
-10. **다이노 런** (Action) - 공룡 러너, 파워업 시스템
-11. **Seoul Runner** (Action) - 서울 배경 엔들리스 러너
-12. **Liquid Robot** (Action) - 변신 로봇 미션 게임
-13. **버블 슈터** (Arcade) - 색깔 매칭, 콤보 시스템
-14. **플래피 플럭스** (Arcade) - 파이프 피하기, 중력 물리
-15. **Stack Tower** (Arcade) - 블록 쌓기 타이밍 게임
-16. **Cube Collector 3D** (Arcade) - 3D 큐브 수집
-17. **틱택토** (Strategy) - AI 대전, 미니맥스 알고리즘
-18. **Island Survival** (Strategy) - 무인도 생존 시뮬레이션
+8. **Merge Master** (Puzzle) - 육각형 그리드 숫자 병합
+9. **Time Loop** (Puzzle) - 시간 녹화와 협력 퍼즐
+10. **Color Memory** (Puzzle) - 색상 패턴 기억 게임
+11. **Piano Memory** (Puzzle) - 음계 기억 게임
+12. **Word Memory** (Puzzle) - 단어 패턴 기억 게임
+13. **스네이크** (Action) - 뱀 게임, 터치 컨트롤
+14. **브레이크아웃** (Action) - 블록 깨기, 파워업
+15. **다이노 런** (Action) - 공룡 러너, 파워업 시스템
+16. **Seoul Runner** (Action) - 서울 배경 엔들리스 러너
+17. **Liquid Robot** (Action) - 변신 로봇 미션 게임
+18. **Space Shooter** (Action) - 우주 슈팅, 보스전
+19. **버블 슈터** (Arcade) - 색깔 매칭, 콤보 시스템
+20. **플래피 플럭스** (Arcade) - 파이프 피하기, 중력 물리
+21. **Stack Tower** (Arcade) - 블록 쌓기 타이밍 게임
+22. **Cube Collector 3D** (Arcade) - 3D 큐브 수집
+23. **틱택토** (Strategy) - AI 대전, 미니맥스 알고리즘
+24. **Island Survival** (Strategy) - 무인도 생존 시뮬레이션
+25. **Rhythm Game** (Arcade) - 리듬 게임
+26. **Various Legacy Games** - 레거시 HTML/JS 게임들
 
 ### 사용자 중심 설계 원칙
 - **Kelly의 요구사항**: 게임 초보자도 쉽게 접근 가능
@@ -389,6 +408,40 @@ localStorage.setItem('new-game-highscore', score.toString());
     - 시각적 + 청각적 피드백 동시 제공
     - 터치/클릭 이벤트 통합 처리
   - **출시일**: 2025-08-31 (오늘 출시!)
+
+### 최신 변경사항 (2025년 8월 30일) 
+- **게임 시스템 대규모 업데이트**:
+  - **LeaderboardSystem 추가**: 
+    - 로컬 스토리지 기반 글로벌 리더보드
+    - 일간/주간/월간 순위 지원
+    - 플레이어 통계 및 랭킹 추적
+  - **TutorialSystem 추가**:
+    - 단계별 튜토리얼 가이드
+    - 하이라이트 및 포지션 기반 설명
+    - 다양한 트리거 타입 지원
+  - **AchievementSystem 추가**:
+    - 게임별 업적 정의 및 추적
+    - 실시간 업적 알림
+    - 진행도 추적 시스템
+  - **ShareSystem 추가**:
+    - 멀티 플랫폼 공유 (트위터, 페이스북, 카카오톡)
+    - 네이티브 공유 API 우선 지원
+    - 커스터마이징 가능한 공유 메시지
+
+- **3개의 새로운 메모리 게임 추가**:
+  - **Color Memory**: Simon Says 스타일 색상 패턴 기억
+  - **Piano Memory**: 15곡 이상의 멜로디 기억 게임
+  - **Word Memory**: 8가지 다양한 암기 패턴 제공
+
+- **공유 기능 통합**:
+  - 메인 페이지 상단 공유 버튼
+  - 각 게임 카드별 개별 공유
+  - 게임 중/게임 오버 화면 공유
+  - 한국어/영어 지원
+
+- **버그 수정**:
+  - WordMemory 검은 화면 문제 해결 (setupGame 메서드 추가)
+  - BaseGame 클래스에 공유 기능 통합
 
 ### 향후 계획
 - **일일 게임 추가**: 매일 새로운 글로벌 타겟 게임 구현
